@@ -74,20 +74,22 @@ const BottomNavigation: React.FC<BottomNavigationProps> = ({ currentRoute, onNav
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#ffffff',
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: -2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 10,
+    paddingHorizontal: 5,
+    paddingBottom: 2,
+    backgroundColor: 'transparent',
   },
   navBar: {
     height: 70,
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 10,
+    backgroundColor: '#ffffff',
+    borderRadius: 35,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 10,
   },
   tab: {
     flex: 1,
