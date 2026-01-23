@@ -1,27 +1,23 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 
-const TopBar: React.FC = () => {
+const LibraryContainer: React.FC = () => {
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Monk Mark</Text>
+      <Text style={styles.text}>Library Page</Text>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    height: 60,
-    backgroundColor: '#6200ee',
+    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingTop: 10,
   },
-  title: {
-    color: '#ffffff',
-    fontSize: 20,
-    fontWeight: 'bold',
+  text: {
+    fontSize: 24,
   },
 });
 
-export default TopBar;
+export default LibraryContainer;
