@@ -17,7 +17,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-url_prefix = "/api/ppl"
+url_prefix = "/api/mm"
 
 # Include routers
 app.include_router(user_router, prefix=url_prefix)
