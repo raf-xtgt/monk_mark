@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 from controller.user.app_mm_user_controller import router as user_router
 from controller.library.app_mm_library_hdr_controller import router as library_router
+from controller.notebook.app_mm_notebook_hdr_controller import router as notebook_router
 
 load_dotenv()
 
@@ -23,6 +24,7 @@ url_prefix = "/api/mm"
 # Include routers
 app.include_router(user_router, prefix=url_prefix)
 app.include_router(library_router, prefix=url_prefix)
+app.include_router(notebook_router, prefix=url_prefix)
 
 @app.get("/")
 def read_root():
