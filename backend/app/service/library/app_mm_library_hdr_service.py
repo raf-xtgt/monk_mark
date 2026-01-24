@@ -13,7 +13,8 @@ class AppMmLibraryHdrService:
             "guid": str(uuid4()),
             "user_guid": str(library_hdr_data.user_guid),
             "book_name": library_hdr_data.book_name,
-            "book_desc": library_hdr_data.book_desc
+            "book_desc": library_hdr_data.book_desc,
+            "file_guid": str(library_hdr_data.file_guid) if library_hdr_data.file_guid else None
         }
         
         response = supabase.table(AppMmLibraryHdrService.TABLE_NAME).insert(new_library_hdr).execute()
@@ -54,6 +55,10 @@ class AppMmLibraryHdrService:
         
         if not update_data:
             return AppMmLibraryHdrService.get_library_hdr_by_id(library_hdr_id)
+        
+        # Convert UUID to string for Supabase
+        if "file_guid" in update_data:
+            update_data["file_guid"] = str(update_data["file_guid"]) if update_data["file_guid"] else None
         
         response = supabase.table(AppMmLibraryHdrService.TABLE_NAME).update(update_data).eq("guid", str(library_hdr_id)).execute()
         

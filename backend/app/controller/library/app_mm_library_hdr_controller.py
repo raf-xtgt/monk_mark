@@ -4,6 +4,7 @@ from typing import List
 from model.library.app_mm_library_hdr import AppMmLibraryHdrCreate, AppMmLibraryHdrUpdate, AppMmLibraryHdrResponse
 from service.library.app_mm_library_hdr_service import AppMmLibraryHdrService
 from model.api_response import ApiResponse
+from model.dto.book_search_dto import BookSearchRequestDto
 
 router = APIRouter(prefix="/librarys", tags=["library"])
 
@@ -52,3 +53,11 @@ def delete_library_hdr(library_hdr_id: UUID):
         return ApiResponse.error({"message": "Library header not found"})
     return ApiResponse.success({"message": "Library header deleted successfully"})
 
+@router.post("/search-book", response_model=ApiResponse[AppMmLibraryHdrResponse], status_code=status.HTTP_201_CREATED)
+def create_library_hdr(searchDto: BookSearchRequestDto):
+    """
+    TODO: Uses the Google Books Api to return book information given a book name as the input.
+    Input: Book name "Deep Work"
+    Output: "Image/Thumbnail/Cover of the Book", "A short description" and the "name of the author"
+    Logic: If there is an image of the book cover, store it in the supabase storage. Then 
+    """
