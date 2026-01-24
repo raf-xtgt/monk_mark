@@ -5,6 +5,7 @@ from controller.user.app_mm_user_controller import router as user_router
 from controller.library.app_mm_library_hdr_controller import router as library_router
 from controller.notebook.app_mm_notebook_hdr_controller import router as notebook_router
 from controller.notebook.app_mm_notebook_content_controller import router as notebook_content_router
+from controller.file.app_mm_file_upload_controller import router as file_upload_router
 
 load_dotenv()
 
@@ -27,6 +28,7 @@ app.include_router(user_router, prefix=url_prefix)
 app.include_router(library_router, prefix=url_prefix)
 app.include_router(notebook_router, prefix=url_prefix)
 app.include_router(notebook_content_router, prefix=url_prefix)
+app.include_router(file_upload_router, prefix=url_prefix)
 
 @app.get("/")
 def read_root():
