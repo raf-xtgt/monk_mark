@@ -1,6 +1,7 @@
 from fastapi import FastAPI, WebSocket
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
+from controller.user.app_mm_user_controller import router as user_router
 
 load_dotenv()
 
@@ -17,6 +18,9 @@ app.add_middleware(
 )
 
 url_prefix = "/api/ppl"
+
+# Include routers
+app.include_router(user_router, prefix=url_prefix)
 
 @app.get("/")
 def read_root():
