@@ -3,8 +3,9 @@ from uuid import UUID
 from typing import List
 from model.library.app_mm_library_hdr import AppMmLibraryHdrCreate, AppMmLibraryHdrUpdate, AppMmLibraryHdrResponse
 from service.library.app_mm_library_hdr_service import AppMmLibraryHdrService
+from service.library.book_search_service import BookSearchService
 from model.api_response import ApiResponse
-from model.dto.book_search_dto import BookSearchRequestDto
+from model.dto.book_search_dto import BookSearchRequestDto, BookSearchResponseDto
 
 router = APIRouter(prefix="/librarys", tags=["library"])
 
@@ -53,11 +54,30 @@ def delete_library_hdr(library_hdr_id: UUID):
         return ApiResponse.error({"message": "Library header not found"})
     return ApiResponse.success({"message": "Library header deleted successfully"})
 
-@router.post("/search-book", response_model=ApiResponse[AppMmLibraryHdrResponse], status_code=status.HTTP_201_CREATED)
-def create_library_hdr(searchDto: BookSearchRequestDto):
+@router.post("/search-book", response_model=ApiResponse[BookSearchResponseDto])
+def search_library_hdr(searchDto: BookSearchRequestDto):
     """
-    TODO: Uses the Google Books Api to return book information given a book name as the input.
-    Input: Book name "Deep Work"
-    Output: "Image/Thumbnail/Cover of the Book", "A short description" and the "name of the author"
-    Logic: If there is an image of the book cover, store it in the supabase storage. Then 
+    Search for a book by name. First checks local database, then Google Books API.
+    
+    If no records found locally:
+    - Uses Google Books API to fetch book information
+    - Downloads and stores book cover in Supabase storage
+    - Creates record in app_mm_file_upload
+    - Creates record in app_mm_library_hdr with file_guid reference
+    
+    If record exists locally:
+    - Retrieves file info using file_guid
+    - Returns book cover URL from storage
+    
+    Input: Book name (e.g., "Deep Work") and user_guid
+    Output: Book cover image URL, description, and author name
     """
+    try:
+        result = BookSearchService.search_book(searchDto.book_name, searchDto.user_guid)
+        
+        if not result:
+            return ApiResponse.error({"message": f"Book '{searchDto.book_name}' not found"})
+        
+        return ApiResponse.success(result)
+    except Exception as e:
+        return ApiResponse.error({"message": f"Error searching for book: {str(e)}"})

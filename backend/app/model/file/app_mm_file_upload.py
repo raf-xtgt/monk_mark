@@ -1,23 +1,3 @@
-"""
-CREATE TABLE IF NOT EXISTS app_mm_file_upload (
-    guid UUID PRIMARY KEY,
-    user_guid UUID,
-    file_name VARCHAR(255),
-    mime_type VARCHAR(255),
-    metadata JSON,
-    storage_path TEXT,
-    bucket_name TEXT,
-    is_public BOOLEAN DEFAULT FALSE,
-    created_date TIMESTAMPTZ DEFAULT NOW(),
-    updated_date TIMESTAMPTZ DEFAULT NOW()
-);
-
-CREATE INDEX IF NOT EXISTS idx_app_mm_file_upload_mime_type ON app_mm_file_upload USING BTREE (mime_type);
-CREATE INDEX IF NOT EXISTS idx_app_mm_file_upload_file_name ON app_mm_file_upload USING BTREE (file_name);
-CREATE INDEX IF NOT EXISTS idx_app_mm_file_upload_created_date ON app_mm_file_upload USING BTREE (created_date);
-CREATE INDEX IF NOT EXISTS idx_app_mm_file_upload_updated_date ON app_mm_file_upload USING BTREE (updated_date);
-CREATE INDEX IF NOT EXISTS idx_app_mm_file_upload_user_guid ON app_mm_file_upload USING BTREE (user_guid);
-"""
 from pydantic import BaseModel
 from uuid import UUID
 from datetime import datetime
