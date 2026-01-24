@@ -9,10 +9,14 @@ from service.file.app_mm_file_upload_service import AppMmFileUploadService
 from model.library.app_mm_library_hdr import AppMmLibraryHdrCreate
 from model.file.app_mm_file_upload import AppMmFileUploadCreate
 from model.dto.book_search_dto import BookSearchResponseDto
+from dotenv import load_dotenv
+
+load_dotenv()
 
 class BookSearchService:
     GOOGLE_BOOKS_API_URL = "https://www.googleapis.com/books/v1/volumes"
-    STORAGE_BUCKET = "book-covers"
+    STORAGE_BUCKET = os.environ.get("SUPABASE_STORAGE_BUCKET")
+    STORAGE_FOLDER = os.environ.get("SUPABASE_STORAGE_FOLDER")
     
     @staticmethod
     def search_book(book_name: str, user_guid: UUID) -> Optional[BookSearchResponseDto]:
@@ -82,17 +86,13 @@ class BookSearchService:
     def _search_google_books(book_name: str) -> Optional[Dict[str, Any]]:
         """Search Google Books API for book information"""
         try:
-            params = {
-                "q": book_name,
-                "maxResults": 1
-            }
+            params = {"q": book_name, "maxResults": 1}
             
-            # Add API key if available
-            api_key = os.environ.get("GOOGLE_BOOKS_API_KEY")
-            if api_key:
-                params["key"] = api_key
-            
-            response = requests.get(BookSearchService.GOOGLE_BOOKS_API_URL, params=params, timeout=10)
+            response = requests.get(
+                BookSearchService.GOOGLE_BOOKS_API_URL, 
+                params=params, 
+                timeout=10
+            )
             response.raise_for_status()
             
             data = response.json()
@@ -146,7 +146,7 @@ class BookSearchService:
             
             # Generate unique filename
             filename = f"{book_name.replace(' ', '_')}_{uuid4()}.{extension}"
-            storage_path = f"covers/{user_guid}/{filename}"
+            storage_path = f"{BookSearchService.STORAGE_FOLDER}/{filename}"
             
             # Upload to Supabase storage
             supabase.storage.from_(BookSearchService.STORAGE_BUCKET).upload(
