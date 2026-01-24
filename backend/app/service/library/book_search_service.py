@@ -3,7 +3,7 @@ import os
 from uuid import UUID, uuid4
 from typing import Optional, Dict, Any
 from io import BytesIO
-from util.supabase_config import supabase
+from util.supabase_config import supabase, supabase_admin
 from service.library.app_mm_library_hdr_service import AppMmLibraryHdrService
 from service.file.app_mm_file_upload_service import AppMmFileUploadService
 from model.library.app_mm_library_hdr import AppMmLibraryHdrCreate
@@ -148,8 +148,8 @@ class BookSearchService:
             filename = f"{book_name.replace(' ', '_')}_{uuid4()}.{extension}"
             storage_path = f"{BookSearchService.STORAGE_FOLDER}/{filename}"
             
-            # Upload to Supabase storage
-            supabase.storage.from_(BookSearchService.STORAGE_BUCKET).upload(
+            # Upload to Supabase storage using admin client (bypasses RLS)
+            supabase_admin.storage.from_(BookSearchService.STORAGE_BUCKET).upload(
                 storage_path,
                 response.content,
                 {"content-type": content_type}
