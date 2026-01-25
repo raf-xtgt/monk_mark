@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
-import { UserStateDto } from '../model/dto/user-state-dto';
+import { UserStateDto } from '../_model/dto/user-state-dto';
 
 interface AppState {
     showTopBar: boolean;

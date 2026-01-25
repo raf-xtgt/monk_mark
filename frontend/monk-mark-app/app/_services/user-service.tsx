@@ -1,6 +1,6 @@
 
 
-import { API_BASE_URL } from '../constants/api-constants';
+import { API_BASE_URL } from '../_constants/api-constants';
 
 export const UserService = {
     async autoCreateDefaultUser(payload: { email: string }): Promise<any> {

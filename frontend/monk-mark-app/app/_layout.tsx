@@ -1,6 +1,6 @@
 import { Stack } from "expo-router";
 import { SafeAreaProvider } from "react-native-safe-area-context";
-import { AppStateProvider } from "./state-controller/state-controller";
+import { AppStateProvider } from "./_state-controller/state-controller";
 
 export default function RootLayout() {
   return (

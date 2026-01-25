@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import ProfileIcon from '../profile-icon/profile-icon';
-import { useAppState } from '../../state-controller/state-controller';
+import { useAppState } from '../../_state-controller/state-controller';
 
 const TopBar: React.FC = () => {
   const { setCurrentRoute } = useAppState();

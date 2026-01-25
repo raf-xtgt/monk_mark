@@ -1,11 +1,11 @@
 import React, { useEffect } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useAppState } from './state-controller/state-controller';
+import { useAppState } from './_state-controller/state-controller';
 import TopBar from './components/top-bar/top-bar';
 import BottomNavigation from './components/bottom-navigation/bottom-navigation';
 import Router from './router';
-import { SessionService } from './services/session-service';
+import { SessionService } from './_services/session-service';
 
 const AppContainer: React.FC = () => {
   const { showTopBar, showBottomNavigation, currentRoute, setCurrentRoute, setUser } = useAppState();

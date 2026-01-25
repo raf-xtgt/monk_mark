@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { useAppState } from '../../state-controller/state-controller';
+import { useAppState } from '../../_state-controller/state-controller';
 
 const ProfileContainer: React.FC = () => {
   const { user } = useAppState();

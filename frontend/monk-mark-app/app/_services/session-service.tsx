@@ -2,7 +2,7 @@
 
 
 import { UserService } from './user-service';
-import { UserStateDto } from '../model/dto/user-state-dto';
+import { UserStateDto } from '../_model/dto/user-state-dto';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const STORAGE_KEYS = {
