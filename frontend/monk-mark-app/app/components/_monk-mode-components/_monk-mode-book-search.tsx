@@ -19,7 +19,7 @@ const MonkModeBookSearch: React.FC<MonkModeBookSearchProps> = ({ onBookSelect })
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<BookResult[]>([]);
   const [loading, setLoading] = useState(false);
-  const { user } = useAppState();
+  const { user, setFocusSession } = useAppState();
 
   const handleSearch = async () => {
     if (!searchQuery.trim() || !user?.guid) return;
@@ -40,13 +40,32 @@ const MonkModeBookSearch: React.FC<MonkModeBookSearchProps> = ({ onBookSelect })
     }
   };
 
+  const handleBookSelect = (book: BookResult) => {
+    if (!user?.guid) return;
+
+    // Map book data to FocusSessionDto
+    const focusSessionData = {
+      userGuid: user.guid,
+      focusSessionGuid: '', // Will be set after creating the session
+      libraryHdrGuid: book.guid,
+      bookName: book.book_name,
+      coverImageUrl: book.cover_image_url,
+    };
+
+    // Store in state
+    setFocusSession(focusSessionData);
+    
+    // Call parent callback
+    onBookSelect(book);
+  };
+
   const truncateDescription = (description: string) => {
     const words = description.split(' ');
     return words.slice(0, 7).join(' ') + (words.length > 7 ? '...' : '');
   };
 
   const renderBookItem = ({ item }: { item: BookResult }) => (
-    <TouchableOpacity style={styles.bookItem} onPress={() => onBookSelect(item)}>
+    <TouchableOpacity style={styles.bookItem} onPress={() => handleBookSelect(item)}>
       <Image source={{ uri: item.cover_image_url }} style={styles.bookCover} />
       <View style={styles.bookInfo}>
         <Text style={styles.bookTitle}>{item.book_name}</Text>

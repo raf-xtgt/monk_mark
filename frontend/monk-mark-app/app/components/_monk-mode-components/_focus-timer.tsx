@@ -1,14 +1,65 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Modal } from 'react-native';
 
 const MIN_MINUTES = 30;
 const MAX_HOURS = 5;
 
-const FocusTimer: React.FC = () => {
+interface FocusTimerProps {
+  isRunning: boolean;
+  onTimeUpdate?: (hours: number, minutes: number, seconds: number) => void;
+}
+
+const FocusTimer: React.FC<FocusTimerProps> = ({ isRunning, onTimeUpdate }) => {
   const [hours, setHours] = useState(0);
   const [minutes, setMinutes] = useState(30);
   const [seconds, setSeconds] = useState(0);
   const [showModal, setShowModal] = useState(false);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  useEffect(() => {
+    if (isRunning) {
+      intervalRef.current = setInterval(() => {
+        setSeconds((prevSeconds) => {
+          if (prevSeconds > 0) {
+            return prevSeconds - 1;
+          } else {
+            setMinutes((prevMinutes) => {
+              if (prevMinutes > 0) {
+                return prevMinutes - 1;
+              } else {
+                setHours((prevHours) => {
+                  if (prevHours > 0) {
+                    setMinutes(59);
+                    return prevHours - 1;
+                  }
+                  return 0;
+                });
+                return 59;
+              }
+            });
+            return 59;
+          }
+        });
+      }, 1000);
+    } else {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+    }
+
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+    };
+  }, [isRunning]);
+
+  useEffect(() => {
+    if (onTimeUpdate) {
+      onTimeUpdate(hours, minutes, seconds);
+    }
+  }, [hours, minutes, seconds, onTimeUpdate]);
 
   const incrementHours = () => {
     if (hours < MAX_HOURS) {
@@ -74,23 +125,7 @@ const FocusTimer: React.FC = () => {
 
   return (
     <View style={styles.container}>
-      {/* Clock Icon with decorative elements */}
-      <View style={styles.clockContainer}>
-        <View style={styles.clockCircle}>
-          <View style={styles.clockHand} />
-          <View style={styles.clockMinuteHand} />
-        </View>
 
-        {/* Decorative floating shapes */}
-        <View style={[styles.floatingShape, styles.shape1, styles.shapeYellow]} />
-        <View style={[styles.floatingShape, styles.shape2, styles.shapeCyan]} />
-        <View style={[styles.floatingShape, styles.shape3, styles.shapePink]} />
-        <View style={[styles.floatingShape, styles.shape4, styles.shapeYellow]} />
-        <View style={[styles.floatingShape, styles.shape5, styles.shapeCyan]} />
-        <View style={[styles.floatingShape, styles.shape6, styles.shapeYellow]} />
-        <View style={[styles.floatingShape, styles.shape7, styles.shapePink]} />
-        <View style={[styles.floatingShape, styles.shape8, styles.shapeCyan]} />
-      </View>
 
       {/* Time Display */}
       <View style={styles.timeDisplay}>
