@@ -1,3 +1,4 @@
+import MonkModeBookSearch from '@/app/components/_monk-mode-components/_monk-mode-book-search';
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 
@@ -5,6 +6,7 @@ const MonkModeContainer: React.FC = () => {
   return (
     <View style={styles.container}>
       <Text style={styles.text}>Monk Mode Page</Text>
+      <MonkModeBookSearch></MonkModeBookSearch>
     </View>
   );
 };
