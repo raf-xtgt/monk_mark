@@ -12,7 +12,7 @@ interface CircularProgressProps {
 
 const CircularProgress: React.FC<CircularProgressProps> = ({ percentage, color, label }) => {
   const animatedValue = useRef(new Animated.Value(0)).current;
-  const size = 120;
+  const size = 90;
   const strokeWidth = 12;
   const radius = (size - strokeWidth) / 2;
   const circumference = radius * 2 * Math.PI;
@@ -101,7 +101,7 @@ const HomeDashboard: React.FC = () => {
       {/* Stats Cards */}
       <View style={styles.statsContainer}>
         <CircularProgress percentage={74} color="#ff9800" label="Focus Time" />
-        <CircularProgress percentage={83} color="#8bc34a" label="Active Retention" />
+        <CircularProgress percentage={83} color="#8bc34a" label="Retention" />
         <CircularProgress percentage={92} color="#2196f3" label="Total Books" />
       </View>
     </View>
