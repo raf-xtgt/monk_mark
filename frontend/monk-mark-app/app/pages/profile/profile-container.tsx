@@ -19,9 +19,6 @@ const ProfileContainer: React.FC = () => {
 
         <Text style={styles.label}>Email</Text>
         <Text style={styles.value}>{user?.email || 'Not set'}</Text>
-
-        <Text style={styles.label}>User ID</Text>
-        <Text style={styles.valueSmall}>{user?.guid || 'Not set'}</Text>
       </View>
     </View>
   );

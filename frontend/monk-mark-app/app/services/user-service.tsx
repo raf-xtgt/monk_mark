@@ -19,10 +19,10 @@ export const UserService = {
 
             const result = await response.json();
 
-            if (result.success) {
+            if (result.status === 'OK_RESPONSE') {
                 return result.data;
             } else {
-                throw new Error(result.error?.message || 'Failed to create user');
+                throw new Error(result.data?.message || 'Failed to create user');
             }
         } catch (error) {
             console.error('Error creating user:', error);

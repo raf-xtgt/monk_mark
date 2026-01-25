@@ -1,1 +1,15 @@
-export const API_BASE_URL = 'http://localhost:8000/api/ppl';
+import { Platform } from 'react-native';
+
+// For React Native:
+// - Android emulator: use 10.0.2.2 instead of localhost
+// - iOS simulator: can use localhost
+// - Physical device: replace with your machine's IP address (e.g., 192.168.1.x)
+const getApiBaseUrl = () => {
+  if (Platform.OS === 'android') {
+    return 'https://db6d7a34883e.ngrok-free.app/api/mm';
+  }
+  // iOS simulator or web
+  return 'http://localhost:8000/api/ppl';
+};
+
+export const API_BASE_URL = getApiBaseUrl();
