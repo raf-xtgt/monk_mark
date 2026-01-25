@@ -30,7 +30,7 @@ export const FocusSessionService = {
                     coverImageUrl: session.cover_image_url || '',
                 };
             }
-            
+
             return null;
         } catch (error) {
             console.error('Error getting existing focus session:', error);
