@@ -85,7 +85,6 @@ const HomeDashboard: React.FC = () => {
       {/* Date Header */}
       <View style={styles.header}>
         <Text style={styles.dateText}>Today, 14 September</Text>
-        <Text style={styles.chevron}>∨</Text>
       </View>
 
       {/* Depth Score Card */}
@@ -97,7 +96,6 @@ const HomeDashboard: React.FC = () => {
           <Text style={styles.depthScoreLabel}>Depth Score</Text>
           <Text style={styles.depthScoreValue}>{depthScore}</Text>
         </View>
-        <Text style={styles.chevronRight}>∨</Text>
       </View>
 
       {/* Stats Cards */}
