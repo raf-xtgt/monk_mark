@@ -86,8 +86,8 @@ class BookSearchService:
     def _search_google_books(book_name: str) -> Optional[Dict[str, Any]]:
         """Search Google Books API for book information"""
         try:
-            params = {"q": book_name, "maxResults": 1}
-            
+            api_key = os.environ.get("GOOGLE_BOOKS_API_KEY")
+            params = {"q": book_name, "maxResults": 1, "key": api_key}
             response = requests.get(
                 BookSearchService.GOOGLE_BOOKS_API_URL, 
                 params=params, 
