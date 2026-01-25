@@ -54,7 +54,7 @@ def delete_library_hdr(library_hdr_id: UUID):
         return ApiResponse.error({"message": "Library header not found"})
     return ApiResponse.success({"message": "Library header deleted successfully"})
 
-@router.post("/search-book", response_model=ApiResponse[BookSearchResponseDto])
+@router.post("/search-book", response_model=ApiResponse)
 def search_library_hdr(searchDto: BookSearchRequestDto):
     """
     Search for a book by name. First checks local database, then Google Books API.
