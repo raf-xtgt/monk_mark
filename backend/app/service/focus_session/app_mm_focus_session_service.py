@@ -7,6 +7,7 @@ from model.focus_session.app_mm_focus_session import (
     AppMmFocusSessionUpdate,
     AppMmFocusSessionResponse
 )
+from model.dto.focus_session_query_criteria import FocusSessionQueryCriteria
 
 class AppMmFocusSessionService:
     TABLE_NAME = "app_mm_focus_session"
@@ -58,6 +59,23 @@ class AppMmFocusSessionService:
     def get_focus_sessions_by_library(library_hdr_guid: UUID) -> List[AppMmFocusSessionResponse]:
         """Get all focus sessions for a specific library header"""
         response = supabase.table(AppMmFocusSessionService.TABLE_NAME).select("*").eq("library_hdr_guid", str(library_hdr_guid)).execute()
+        
+        return [AppMmFocusSessionResponse(**session) for session in response.data]
+    
+    @staticmethod
+    def get_focus_sessions_by_criteria(criteria: FocusSessionQueryCriteria) -> List[AppMmFocusSessionResponse]:
+        """Get focus sessions by query criteria"""
+        query = supabase.table(AppMmFocusSessionService.TABLE_NAME).select("*")
+        
+        # Apply filters based on provided criteria
+        if criteria.guid:
+            query = query.eq("guid", str(criteria.guid))
+        if criteria.user_guid:
+            query = query.eq("user_guid", str(criteria.user_guid))
+        if criteria.library_hdr_guid:
+            query = query.eq("library_hdr_guid", str(criteria.library_hdr_guid))
+        
+        response = query.execute()
         
         return [AppMmFocusSessionResponse(**session) for session in response.data]
     

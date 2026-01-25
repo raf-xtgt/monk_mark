@@ -8,6 +8,7 @@ from model.focus_session.app_mm_focus_session import (
 )
 from service.focus_session.app_mm_focus_session_service import AppMmFocusSessionService
 from model.api_response import ApiResponse
+from model.dto.focus_session_query_criteria import FocusSessionQueryCriteria
 
 router = APIRouter(prefix="/focus-sessions", tags=["focus-sessions"])
 
@@ -61,3 +62,12 @@ def delete_focus_session(focus_session_id: UUID):
     if not success:
         return ApiResponse.error({"message": "Focus session not found"})
     return ApiResponse.success({"message": "Focus session deleted successfully"})
+
+@router.post("/get-by-criteria", response_model=ApiResponse[List[AppMmFocusSessionResponse]], status_code=status.HTTP_201_CREATED)
+def get_focus_session_by_criteria(query_criteria: FocusSessionQueryCriteria):
+    """Get focus sessions by criteria"""
+    try:
+        focus_sessions = AppMmFocusSessionService.get_focus_sessions_by_criteria(query_criteria)
+        return ApiResponse.success(focus_sessions)
+    except Exception as e:
+        return ApiResponse.error({"message": str(e)})
