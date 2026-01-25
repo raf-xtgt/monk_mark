@@ -54,3 +54,14 @@ To encourage consistent reflection and emotional growth, MonkMark utilizes a uni
 * **OCR Engine:** Google Vision API or Tesseract for capturing and highlighting text from photos.
 * **LLM Integration:** OpenAI GPT-4o or Gemini Pro for generating mantras, Socratic Q&A, and synthesis questions.
 * **Image Generation:** DALL-E 3 or Midjourney API (stylized for Pixel Art) for the reward system.
+
+
+## Run backend
+```
+uvicorn main:app --reload
+```
+
+## Run frontend
+```
+npx expo start -c
+```
