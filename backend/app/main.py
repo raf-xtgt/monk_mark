@@ -12,10 +12,11 @@ load_dotenv()
 app = FastAPI(title="Monk Mark Web Application Service")
 
 
-origins = ["http://localhost:3000"]
+# origins = ["http://localhost:3000"]
+# Change this to allow all for prototyping
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=["*"],  # Allows any source to access the API
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
