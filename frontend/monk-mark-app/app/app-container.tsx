@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAppState } from './state-controller/state-controller';
@@ -7,8 +7,7 @@ import BottomNavigation from './components/bottom-navigation/bottom-navigation';
 import Router from './router';
 
 const AppContainer: React.FC = () => {
-  const { showTopBar, showBottomNavigation } = useAppState();
-  const [currentRoute, setCurrentRoute] = useState(1);
+  const { showTopBar, showBottomNavigation, currentRoute, setCurrentRoute } = useAppState();
 
   return (
     <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
