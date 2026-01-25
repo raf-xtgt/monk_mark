@@ -81,6 +81,50 @@ export const FocusSessionService = {
             throw error;
         }
     },
+    async updateFocusSession(payload: {
+        focusSessionGuid: string;
+        userGuid?: string;
+        libraryHdrGuid?: string;
+        timeHrs?: number;
+        timeSeconds?: number;
+    }): Promise<FocusSessionDto> {
+        try {
+            const response = await fetch(`${API_BASE_URL}/focus-sessions/update/${payload.focusSessionGuid}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    user_guid: payload.userGuid,
+                    library_hdr_guid: payload.libraryHdrGuid,
+                    time_hrs: payload.timeHrs,
+                    time_seconds: payload.timeSeconds,
+                }),
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const result = await response.json();
+
+            if (result.status === 'OK_RESPONSE' && result.data) {
+                const session = result.data;
+                return {
+                    userGuid: session.user_guid,
+                    focusSessionGuid: session.guid,
+                    libraryHdrGuid: session.library_hdr_guid,
+                    bookName: '',
+                    coverImageUrl: '',
+                };
+            } else {
+                throw new Error(result.data?.message || 'Failed to update focus session');
+            }
+        } catch (error) {
+            console.error('Error updating focus session:', error);
+            throw error;
+        }
+    },
 };
 
 
