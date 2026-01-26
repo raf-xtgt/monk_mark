@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, Animated } from 'react-native';
 import Svg, { Circle } from 'react-native-svg';
+import RecentReading from './home-components-recent-reading';
 
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 
@@ -104,6 +105,7 @@ const HomeDashboard: React.FC = () => {
         <CircularProgress percentage={83} color="#8bc34a" label="Retention" />
         <CircularProgress percentage={92} color="#2196f3" label="Total Books" />
       </View>
+      <RecentReading />
     </View>
   );
 };
