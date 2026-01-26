@@ -36,6 +36,9 @@ class AppMmLibraryHdrWithFileResponse(BaseModel):
     created_date: datetime
     last_read: datetime
     storage_path: Optional[str] = None
+    session_count: Optional[int] = 0
+    time_focused_hrs: Optional[float] = 0.0
+    time_focused_minutes: Optional[int] = 0
 
     class Config:
         from_attributes = True

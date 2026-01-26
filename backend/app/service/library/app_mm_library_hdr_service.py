@@ -6,6 +6,7 @@ from model.library.app_mm_library_hdr import AppMmLibraryHdrCreate, AppMmLibrary
 class AppMmLibraryHdrService:
     TABLE_NAME = "app_mm_library_hdr"
     FILE_UPLOAD_TABLE = "app_mm_file_upload"
+    FOCUS_SESSION_TABLE = "app_mm_focus_session"
     
     @staticmethod
     def create_library_hdr(library_hdr_data: AppMmLibraryHdrCreate) -> AppMmLibraryHdrResponse:
@@ -77,7 +78,7 @@ class AppMmLibraryHdrService:
 
     @staticmethod
     def get_library_hdrs_by_criteria(guid: Optional[UUID] = None, user_guid: Optional[UUID] = None, book_name: Optional[str] = None) -> List[AppMmLibraryHdrWithFileResponse]:
-        """Get library headers by criteria with file storage path (manual join), ordered by last_read descending"""
+        """Get library headers by criteria with file storage path and focus session stats (manual join), ordered by last_read descending"""
         # First, query library headers with filters
         query = supabase.table(AppMmLibraryHdrService.TABLE_NAME).select("*")
         
@@ -95,6 +96,9 @@ class AppMmLibraryHdrService:
         
         if not library_response.data:
             return []
+        
+        # Collect all library guids for focus session lookup
+        library_guids = [item["guid"] for item in library_response.data]
         
         # Collect all unique file_guids that are not None
         file_guids = [item["file_guid"] for item in library_response.data if item.get("file_guid")]
@@ -114,11 +118,52 @@ class AppMmLibraryHdrService:
                     print(f"Error getting public URL for {file_record['guid']}: {str(e)}")
                     file_map[file_record["guid"]] = None
         
+        # Fetch focus session stats
+        focus_stats_map = {}
+        if library_guids:
+            focus_response = supabase.table(AppMmLibraryHdrService.FOCUS_SESSION_TABLE).select("library_hdr_guid, time_hrs, time_seconds").in_("library_hdr_guid", library_guids).execute()
+            
+            # Aggregate focus session data by library_hdr_guid
+            for session in focus_response.data:
+                lib_guid = session["library_hdr_guid"]
+                if lib_guid not in focus_stats_map:
+                    focus_stats_map[lib_guid] = {
+                        "count": 0,
+                        "total_hrs": 0.0,
+                        "total_seconds": 0
+                    }
+                
+                focus_stats_map[lib_guid]["count"] += 1
+                
+                # Add time_hrs (convert from Decimal/string to float)
+                if session.get("time_hrs"):
+                    try:
+                        focus_stats_map[lib_guid]["total_hrs"] += float(session["time_hrs"])
+                    except (ValueError, TypeError):
+                        pass
+                
+                # Add time_seconds
+                if session.get("time_seconds"):
+                    focus_stats_map[lib_guid]["total_seconds"] += int(session["time_seconds"])
+        
         # Combine the data
         result = []
         for item in library_response.data:
+            lib_guid = item["guid"]
             file_guid = item.get("file_guid")
             storage_path = file_map.get(file_guid) if file_guid else None
+            
+            # Get focus session stats
+            focus_stats = focus_stats_map.get(lib_guid, {"count": 0, "total_hrs": 0.0, "total_seconds": 0})
+            
+            # Calculate total time focused
+            total_seconds = focus_stats["total_seconds"]
+            total_hrs_from_seconds = total_seconds / 3600.0
+            total_hrs = focus_stats["total_hrs"] + total_hrs_from_seconds
+            
+            # Convert to hours and minutes
+            time_focused_hrs = int(total_hrs)
+            time_focused_minutes = int((total_hrs - time_focused_hrs) * 60)
             
             library_data = {
                 "guid": item["guid"],
@@ -128,7 +173,10 @@ class AppMmLibraryHdrService:
                 "file_guid": item["file_guid"],
                 "created_date": item["created_date"],
                 "last_read": item["last_read"],
-                "storage_path": storage_path
+                "storage_path": storage_path,
+                "session_count": focus_stats["count"],
+                "time_focused_hrs": time_focused_hrs,
+                "time_focused_minutes": time_focused_minutes
             }
             result.append(AppMmLibraryHdrWithFileResponse(**library_data))
         

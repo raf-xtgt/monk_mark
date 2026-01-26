@@ -1,18 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity } from 'react-native';
 import { LibraryService } from '../../_services/library-service';
-import LibraryCard from './_library_card';
 
 
-const LibraryListing: React.FC = () => {
+const LibraryCard: React.FC = () => {
   
   return (
     <View>
-        <Text>Library listing</Text>
-        <LibraryCard />
+        <Text>Library card</Text>
 
     </View>
   );
 };
 
-export default LibraryListing;
+export default LibraryCard;
