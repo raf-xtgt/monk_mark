@@ -134,13 +134,15 @@ const FocusTimer: React.FC<FocusTimerProps> = ({ isRunning, onTimeUpdate }) => {
         </Text>
       </View>
 
-      {/* Set Focus Time Button */}
-      <TouchableOpacity
-        style={styles.setTimeButton}
-        onPress={() => setShowModal(true)}
-      >
-        <Text style={styles.setTimeButtonText}>Set Focus Time</Text>
-      </TouchableOpacity>
+      {/* Set Focus Time Button - Only show when timer is not running */}
+      {!isRunning && (
+        <TouchableOpacity
+          style={styles.setTimeButton}
+          onPress={() => setShowModal(true)}
+        >
+          <Text style={styles.setTimeButtonText}>Set Focus Time</Text>
+        </TouchableOpacity>
+      )}
 
       {/* Time Picker Modal */}
       <Modal

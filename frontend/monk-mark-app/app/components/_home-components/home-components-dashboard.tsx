@@ -84,7 +84,7 @@ const HomeDashboard: React.FC = () => {
     <View style={styles.container}>
       {/* Date Header */}
       <View style={styles.header}>
-        <Text style={styles.dateText}>Today, 14 September</Text>
+        <Text style={styles.dateText}>Today, 25th January</Text>
       </View>
 
       {/* Depth Score Card */}
