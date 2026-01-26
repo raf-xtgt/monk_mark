@@ -102,11 +102,17 @@ class AppMmLibraryHdrService:
         # Fetch file upload records if there are any file_guids
         file_map = {}
         if file_guids:
-            file_response = supabase.table(AppMmLibraryHdrService.FILE_UPLOAD_TABLE).select("guid, storage_path").in_("guid", file_guids).execute()
+            file_response = supabase.table(AppMmLibraryHdrService.FILE_UPLOAD_TABLE).select("guid, storage_path, bucket_name").in_("guid", file_guids).execute()
             
-            # Create a map of file_guid -> storage_path
+            # Create a map of file_guid -> public URL
             for file_record in file_response.data:
-                file_map[file_record["guid"]] = file_record["storage_path"]
+                try:
+                    # Get public URL from Supabase storage
+                    public_url = supabase.storage.from_(file_record["bucket_name"]).get_public_url(file_record["storage_path"])
+                    file_map[file_record["guid"]] = public_url
+                except Exception as e:
+                    print(f"Error getting public URL for {file_record['guid']}: {str(e)}")
+                    file_map[file_record["guid"]] = None
         
         # Combine the data
         result = []

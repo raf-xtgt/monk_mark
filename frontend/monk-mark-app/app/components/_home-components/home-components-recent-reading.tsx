@@ -29,6 +29,7 @@ const RecentReading: React.FC = () => {
       const result = await LibraryService.getLibraryBookRecordsByCriteria({
         user_guid: user.guid,
       });
+      console.log('Loaded books:', result);
       setBooks(result || []);
     } catch (error) {
       console.error('Error loading recent books:', error);
@@ -62,13 +63,20 @@ const RecentReading: React.FC = () => {
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.scrollContent}
         >
-          {books.map((book, index) => (
+          {books.map((book) => (
             <View key={book.guid} style={styles.bookCard}>
-              <Image
-                source={{ uri: book.storage_path }}
-                style={styles.bookCover}
-                resizeMode="cover"
-              />
+              {book.storage_path ? (
+                <Image
+                  source={{ uri: book.storage_path }}
+                  style={styles.bookCover}
+                  resizeMode="cover"
+                  onError={(error) => console.log('Image load error:', error.nativeEvent.error)}
+                />
+              ) : (
+                <View style={[styles.bookCover, styles.placeholderCover]}>
+                  <Ionicons name="book" size={48} color="#ccc" />
+                </View>
+              )}
             </View>
           ))}
         </ScrollView>
@@ -117,6 +125,11 @@ const styles = StyleSheet.create({
     width: 160,
     height: 240,
     borderRadius: 8,
+  },
+  placeholderCover: {
+    backgroundColor: '#e0e0e0',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   emptyContainer: {
     height: 240,
