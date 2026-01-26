@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
 import FocusTimer from './_focus-timer';
 import { useAppState } from '../../_state-controller/state-controller';
 import { FocusSessionService } from '../../_services/focus-session-service';
+import { LibraryService } from '../../_services/library-service';
 import { Ionicons } from '@expo/vector-icons';
 
 interface BookResult {
@@ -49,6 +50,14 @@ const MonkModeView: React.FC<MonkModeViewProps> = ({ selectedBook }) => {
       // Calculate initial time in seconds
       const totalSeconds = currentHours * 3600 + currentMinutes * 60 + currentSeconds;
       setInitialTimeSeconds(totalSeconds);
+
+      // Update last_read in library record
+      await LibraryService.updateLibraryBookRecord(
+        focusSession.libraryHdrGuid,
+        {
+          last_read: new Date().toISOString(),
+        }
+      );
 
       // Create focus session in database
       const createdSession = await FocusSessionService.createFocusSession({
