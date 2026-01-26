@@ -18,7 +18,7 @@ const CARD_HEIGHT = 280;
 const CARD_GAP = 16;
 
 const LibraryListing: React.FC = () => {
-  const { user } = useAppState();
+  const { user, setCurrentRoute, setFocusSession } = useAppState();
   const [books, setBooks] = useState<LibraryBook[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
@@ -90,6 +90,25 @@ const LibraryListing: React.FC = () => {
     }
   };
 
+  const handleBookPress = (book: LibraryBook) => {
+    if (!user?.guid) return;
+
+    // Map book data to FocusSessionDto
+    const focusSessionData = {
+      userGuid: user.guid,
+      focusSessionGuid: '',
+      libraryHdrGuid: book.guid,
+      bookName: book.book_name,
+      coverImageUrl: book.storage_path || '',
+    };
+
+    // Store in state
+    setFocusSession(focusSessionData);
+
+    // Navigate to Monk Mode
+    setCurrentRoute(4);
+  };
+
   const renderItem = ({ item }: { item: LibraryBook }) => (
     <View style={[styles.cardWrapper, { width: cardWidth, height: CARD_HEIGHT }]}>
       <LibraryCard
@@ -97,7 +116,7 @@ const LibraryListing: React.FC = () => {
         coverImageUrl={item.storage_path}
         totalSessions={item.total_sessions || 0}
         totalTimeHours={item.total_time_hrs || 0}
-        onPress={() => console.log('Book pressed:', item.book_name)}
+        onPress={() => handleBookPress(item)}
       />
     </View>
   );

@@ -15,7 +15,7 @@ interface BookRecord {
 const RecentReading: React.FC = () => {
   const [books, setBooks] = useState<BookRecord[]>([]);
   const [loading, setLoading] = useState(true);
-  const { user, setCurrentRoute } = useAppState();
+  const { user, setCurrentRoute, setFocusSession } = useAppState();
 
   useEffect(() => {
     loadRecentBooks();
@@ -41,6 +41,25 @@ const RecentReading: React.FC = () => {
 
   const handleViewAll = () => {
     setCurrentRoute(2); // Navigate to Library page
+  };
+
+  const handleBookPress = (book: BookRecord) => {
+    if (!user?.guid) return;
+
+    // Map book data to FocusSessionDto
+    const focusSessionData = {
+      userGuid: user.guid,
+      focusSessionGuid: '',
+      libraryHdrGuid: book.guid,
+      bookName: book.book_name,
+      coverImageUrl: book.storage_path,
+    };
+
+    // Store in state
+    setFocusSession(focusSessionData);
+
+    // Navigate to Monk Mode
+    setCurrentRoute(4);
   };
 
   return (
@@ -69,7 +88,7 @@ const RecentReading: React.FC = () => {
           contentContainerStyle={styles.scrollContent}
         >
           {books.map((book) => (
-            <View key={book.guid} style={styles.bookCard}>
+            <TouchableOpacity key={book.guid} style={styles.bookCard} onPress={() => handleBookPress(book)}>
               {book.storage_path ? (
                 <Image
                   source={{ uri: book.storage_path }}
@@ -82,7 +101,7 @@ const RecentReading: React.FC = () => {
                   <Ionicons name="book" size={48} color="#ccc" />
                 </View>
               )}
-            </View>
+            </TouchableOpacity>
           ))}
         </ScrollView>
       )}
