@@ -127,15 +127,18 @@ const MonkModeView: React.FC<MonkModeViewProps> = ({ selectedBook }) => {
         {/* Focus timer control buttons */}
         <View style={styles.controlButtons}>
           {!isRunning ? (
+            // play button
             <TouchableOpacity style={styles.playButton} onPress={handlePlay}>
               <Ionicons name="play" size={32} color="white" />
             </TouchableOpacity>
           ) : (
             <>
+              {/* pause button */}
               <TouchableOpacity style={styles.pauseButton} onPress={handlePause}>
                 <Ionicons name="pause" size={32} color="white" />
               </TouchableOpacity>
               
+              {/* stop button */}
               <TouchableOpacity style={styles.stopButton} onPress={handleStop}>
                 <Ionicons name="stop" size={32} color="white" />
               </TouchableOpacity>

@@ -30,6 +30,38 @@ export const LibraryService = {
             throw error;
         }
     },
+
+    async updateLibraryBookRecord(libraryGuid: string, payload: {
+        book_name?: string;
+        book_desc?: string;
+        last_read?: string;
+        file_guid?: string;
+    }): Promise<any> {
+        try {
+            const response = await fetch(`${API_BASE_URL}/librarys/update/${libraryGuid}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(payload),
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const result = await response.json();
+
+            if (result.status === 'OK_RESPONSE') {
+                return result.data;
+            } else {
+                throw new Error(result.data?.message || 'Failed to update library record');
+            }
+        } catch (error) {
+            console.error('Error updating library record:', error);
+            throw error;
+        }
+    },
 };
 
 
