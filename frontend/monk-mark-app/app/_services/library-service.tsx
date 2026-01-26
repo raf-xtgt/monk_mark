@@ -62,6 +62,37 @@ export const LibraryService = {
             throw error;
         }
     },
+
+    async getLibraryBookRecordsByCriteria(payload: {
+        guid?: string;
+        user_guid?: string;
+        book_name?: string;
+    }): Promise<any> {
+        try {
+            const response = await fetch(`${API_BASE_URL}/librarys/get-by-criteria`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(payload),
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const result = await response.json();
+
+            if (result.status === 'OK_RESPONSE') {
+                return result.data;
+            } else {
+                throw new Error(result.data?.message || 'Failed to get library records');
+            }
+        } catch (error) {
+            console.error('Error getting library records by criteria:', error);
+            throw error;
+        }
+    },
 };
 
 

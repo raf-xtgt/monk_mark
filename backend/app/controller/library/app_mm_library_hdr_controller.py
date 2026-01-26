@@ -6,6 +6,7 @@ from service.library.app_mm_library_hdr_service import AppMmLibraryHdrService
 from service.library.book_search_service import BookSearchService
 from model.api_response import ApiResponse
 from model.dto.book_search_dto import BookSearchRequestDto, BookSearchResponseDto
+from model.dto.app_mm_library_hdr_query_criteria import LibraryHdrQueryCriteria
 
 router = APIRouter(prefix="/librarys", tags=["library"])
 
@@ -81,3 +82,17 @@ def search_library_hdr(searchDto: BookSearchRequestDto):
         return ApiResponse.success(result)
     except Exception as e:
         return ApiResponse.error({"message": f"Error searching for book: {str(e)}"})
+
+
+@router.post("/get-by-criteria", response_model=ApiResponse[List[AppMmLibraryHdrResponse]], status_code=status.HTTP_201_CREATED)
+def get_library_by_criteria(query_criteria: LibraryHdrQueryCriteria):
+    """Get library hdrs by criteria, ordered by last_read descending"""
+    try:
+        libraries = AppMmLibraryHdrService.get_library_hdrs_by_criteria(
+            guid=query_criteria.guid,
+            user_guid=query_criteria.user_guid,
+            book_name=query_criteria.book_name
+        )
+        return ApiResponse.success(libraries)
+    except Exception as e:
+        return ApiResponse.error({"message": str(e)})

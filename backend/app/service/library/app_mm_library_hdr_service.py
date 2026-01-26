@@ -73,3 +73,22 @@ class AppMmLibraryHdrService:
         response = supabase.table(AppMmLibraryHdrService.TABLE_NAME).delete().eq("guid", str(library_hdr_id)).execute()
         
         return len(response.data) > 0
+
+    @staticmethod
+    def get_library_hdrs_by_criteria(guid: Optional[UUID] = None, user_guid: Optional[UUID] = None, book_name: Optional[str] = None) -> List[AppMmLibraryHdrResponse]:
+        """Get library headers by criteria, ordered by last_read descending"""
+        query = supabase.table(AppMmLibraryHdrService.TABLE_NAME).select("*")
+        
+        if guid:
+            query = query.eq("guid", str(guid))
+        if user_guid:
+            query = query.eq("user_guid", str(user_guid))
+        if book_name:
+            query = query.ilike("book_name", f"%{book_name}%")
+        
+        # Order by last_read descending
+        query = query.order("last_read", desc=True)
+        
+        response = query.execute()
+        
+        return [AppMmLibraryHdrResponse(**library_hdr) for library_hdr in response.data]
