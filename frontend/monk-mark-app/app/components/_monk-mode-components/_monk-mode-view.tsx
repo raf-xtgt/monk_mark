@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
 import FocusTimer from './_focus-timer';
 import { useAppState } from '../../_state-controller/state-controller';
 import { FocusSessionService } from '../../_services/focus-session-service';
+import { Ionicons } from '@expo/vector-icons';
 
 interface BookResult {
   guid: string;
@@ -123,18 +124,20 @@ const MonkModeView: React.FC<MonkModeViewProps> = ({ selectedBook }) => {
           <Text style={styles.author}>by {selectedBook.author_name}</Text>
         </View> */}
 
+        {/* Focus timer control buttons */}
         <View style={styles.controlButtons}>
           {!isRunning ? (
             <TouchableOpacity style={styles.playButton} onPress={handlePlay}>
-              <Text style={styles.buttonText}>▶</Text>
+              <Ionicons name="play" size={32} color="white" />
             </TouchableOpacity>
           ) : (
             <>
               <TouchableOpacity style={styles.pauseButton} onPress={handlePause}>
-                <Text style={styles.buttonText}>⏸</Text>
+                <Ionicons name="pause" size={32} color="white" />
               </TouchableOpacity>
+              
               <TouchableOpacity style={styles.stopButton} onPress={handleStop}>
-                <Text style={styles.buttonText}>⏹</Text>
+                <Ionicons name="stop" size={32} color="white" />
               </TouchableOpacity>
             </>
           )}
