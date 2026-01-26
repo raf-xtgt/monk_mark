@@ -1,10 +1,11 @@
 from uuid import UUID, uuid4
 from typing import List, Optional
 from util.supabase_config import supabase
-from model.library.app_mm_library_hdr import AppMmLibraryHdrCreate, AppMmLibraryHdrUpdate, AppMmLibraryHdrResponse
+from model.library.app_mm_library_hdr import AppMmLibraryHdrCreate, AppMmLibraryHdrUpdate, AppMmLibraryHdrResponse, AppMmLibraryHdrWithFileResponse
 
 class AppMmLibraryHdrService:
     TABLE_NAME = "app_mm_library_hdr"
+    FILE_UPLOAD_TABLE = "app_mm_file_upload"
     
     @staticmethod
     def create_library_hdr(library_hdr_data: AppMmLibraryHdrCreate) -> AppMmLibraryHdrResponse:
@@ -75,9 +76,12 @@ class AppMmLibraryHdrService:
         return len(response.data) > 0
 
     @staticmethod
-    def get_library_hdrs_by_criteria(guid: Optional[UUID] = None, user_guid: Optional[UUID] = None, book_name: Optional[str] = None) -> List[AppMmLibraryHdrResponse]:
-        """Get library headers by criteria, ordered by last_read descending"""
-        query = supabase.table(AppMmLibraryHdrService.TABLE_NAME).select("*")
+    def get_library_hdrs_by_criteria(guid: Optional[UUID] = None, user_guid: Optional[UUID] = None, book_name: Optional[str] = None) -> List[AppMmLibraryHdrWithFileResponse]:
+        """Get library headers by criteria with file storage path, ordered by last_read descending"""
+        # Build query with left join to app_mm_file_upload
+        query = supabase.table(AppMmLibraryHdrService.TABLE_NAME).select(
+            "*, app_mm_file_upload(storage_path)"
+        )
         
         if guid:
             query = query.eq("guid", str(guid))
@@ -91,4 +95,19 @@ class AppMmLibraryHdrService:
         
         response = query.execute()
         
-        return [AppMmLibraryHdrResponse(**library_hdr) for library_hdr in response.data]
+        # Transform the response to include storage_path
+        result = []
+        for item in response.data:
+            library_data = {
+                "guid": item["guid"],
+                "user_guid": item["user_guid"],
+                "book_name": item["book_name"],
+                "book_desc": item["book_desc"],
+                "file_guid": item["file_guid"],
+                "created_date": item["created_date"],
+                "last_read": item["last_read"],
+                "storage_path": item["app_mm_file_upload"]["storage_path"] if item.get("app_mm_file_upload") else None
+            }
+            result.append(AppMmLibraryHdrWithFileResponse(**library_data))
+        
+        return result

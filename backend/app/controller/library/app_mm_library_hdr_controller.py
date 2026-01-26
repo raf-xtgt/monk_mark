@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException, status
 from uuid import UUID
 from typing import List
-from model.library.app_mm_library_hdr import AppMmLibraryHdrCreate, AppMmLibraryHdrUpdate, AppMmLibraryHdrResponse
+from model.library.app_mm_library_hdr import AppMmLibraryHdrCreate, AppMmLibraryHdrUpdate, AppMmLibraryHdrResponse, AppMmLibraryHdrWithFileResponse
 from service.library.app_mm_library_hdr_service import AppMmLibraryHdrService
 from service.library.book_search_service import BookSearchService
 from model.api_response import ApiResponse
@@ -84,9 +84,9 @@ def search_library_hdr(searchDto: BookSearchRequestDto):
         return ApiResponse.error({"message": f"Error searching for book: {str(e)}"})
 
 
-@router.post("/get-by-criteria", response_model=ApiResponse[List[AppMmLibraryHdrResponse]], status_code=status.HTTP_201_CREATED)
+@router.post("/get-by-criteria", response_model=ApiResponse[List[AppMmLibraryHdrWithFileResponse]], status_code=status.HTTP_201_CREATED)
 def get_library_by_criteria(query_criteria: LibraryHdrQueryCriteria):
-    """Get library hdrs by criteria, ordered by last_read descending"""
+    """Get library hdrs by criteria with file storage path, ordered by last_read descending"""
     try:
         libraries = AppMmLibraryHdrService.get_library_hdrs_by_criteria(
             guid=query_criteria.guid,

@@ -26,3 +26,16 @@ class AppMmLibraryHdrResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+class AppMmLibraryHdrWithFileResponse(BaseModel):
+    guid: UUID
+    user_guid: UUID
+    book_name: str
+    book_desc: Optional[str]
+    file_guid: Optional[UUID]
+    created_date: datetime
+    last_read: datetime
+    storage_path: Optional[str] = None
+
+    class Config:
+        from_attributes = True
