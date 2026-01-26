@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TextInput, ActivityIndicator, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TextInput, ActivityIndicator, Dimensions } from 'react-native';
 import { LibraryService } from '../../_services/library-service';
 import { useAppState } from '../../_state-controller/state-controller';
 import LibraryCard from './_library_card';
@@ -12,13 +12,41 @@ interface LibraryBook {
   total_time_hrs?: number;
 }
 
+const CARD_MIN_WIDTH = 150;
+const CARD_MAX_WIDTH = 200;
+const CARD_HEIGHT = 280;
+const CARD_GAP = 16;
+
 const LibraryListing: React.FC = () => {
   const { user } = useAppState();
   const [books, setBooks] = useState<LibraryBook[]>([]);
-  const [filteredBooks, setFilteredBooks] = useState<LibraryBook[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [numColumns, setNumColumns] = useState(2);
+  const [cardWidth, setCardWidth] = useState(CARD_MIN_WIDTH);
+
+  const calculateLayout = () => {
+    const screenWidth = Dimensions.get('window').width;
+    const availableWidth = screenWidth - (CARD_GAP * 2);
+
+    let columns = Math.floor(availableWidth / (CARD_MIN_WIDTH + CARD_GAP));
+    columns = Math.max(1, columns);
+
+    const totalGapWidth = CARD_GAP * (columns - 1);
+    const calculatedCardWidth = (availableWidth - totalGapWidth) / columns;
+    const finalCardWidth = Math.min(calculatedCardWidth, CARD_MAX_WIDTH);
+
+    setNumColumns(columns);
+    setCardWidth(finalCardWidth);
+  };
+
+  useEffect(() => {
+    calculateLayout();
+
+    const subscription = Dimensions.addEventListener('change', calculateLayout);
+    return () => subscription?.remove();
+  }, []);
 
   const fetchBooks = async (bookName?: string) => {
     if (!user?.guid) return;
@@ -36,15 +64,13 @@ const LibraryListing: React.FC = () => {
       }
 
       const result = await LibraryService.getLibraryBookRecordsByCriteria(payload);
-      
+
       const booksData = Array.isArray(result) ? result : [];
       setBooks(booksData);
-      setFilteredBooks(booksData);
     } catch (err) {
       console.error('Error fetching books:', err);
       setError('Failed to load library books');
       setBooks([]);
-      setFilteredBooks([]);
     } finally {
       setLoading(false);
     }
@@ -56,7 +82,7 @@ const LibraryListing: React.FC = () => {
 
   const handleSearch = (text: string) => {
     setSearchQuery(text);
-    
+
     if (!text.trim()) {
       fetchBooks();
     } else {
@@ -64,11 +90,19 @@ const LibraryListing: React.FC = () => {
     }
   };
 
-  const renderBookGrid = () => {
-    const screenWidth = Dimensions.get('window').width;
-    const cardWidth = screenWidth > 768 ? (screenWidth - 48) / 4 : (screenWidth - 48) / 2;
-    const numColumns = screenWidth > 768 ? 4 : 2;
+  const renderItem = ({ item }: { item: LibraryBook }) => (
+    <View style={[styles.cardWrapper, { width: cardWidth, height: CARD_HEIGHT }]}>
+      <LibraryCard
+        bookName={item.book_name}
+        coverImageUrl={item.storage_path}
+        totalSessions={item.total_sessions || 0}
+        totalTimeHours={item.total_time_hrs || 0}
+        onPress={() => console.log('Book pressed:', item.book_name)}
+      />
+    </View>
+  );
 
+  const renderEmptyComponent = () => {
     if (loading) {
       return (
         <View style={styles.centerContainer}>
@@ -86,38 +120,11 @@ const LibraryListing: React.FC = () => {
       );
     }
 
-    if (filteredBooks.length === 0) {
-      return (
-        <View style={styles.centerContainer}>
-          <Text style={styles.emptyText}>
-            {searchQuery ? 'No books found matching your search' : 'Your library is empty'}
-          </Text>
-        </View>
-      );
-    }
-
-    const rows: LibraryBook[][] = [];
-    for (let i = 0; i < filteredBooks.length; i += numColumns) {
-      rows.push(filteredBooks.slice(i, i + numColumns));
-    }
-
     return (
-      <View style={styles.gridContainer}>
-        {rows.map((row, rowIndex) => (
-          <View key={rowIndex} style={styles.row}>
-            {row.map((book) => (
-              <View key={book.guid} style={[styles.cardWrapper, { width: cardWidth }]}>
-                <LibraryCard
-                  bookName={book.book_name}
-                  coverImageUrl={book.cover_image_url}
-                  totalSessions={book.total_sessions || 0}
-                  totalTimeHours={book.total_time_hrs || 0}
-                  onPress={() => console.log('Book pressed:', book.book_name)}
-                />
-              </View>
-            ))}
-          </View>
-        ))}
+      <View style={styles.centerContainer}>
+        <Text style={styles.emptyText}>
+          {searchQuery ? 'No books found matching your search' : 'Your library is empty'}
+        </Text>
       </View>
     );
   };
@@ -137,13 +144,17 @@ const LibraryListing: React.FC = () => {
         <Text style={styles.searchIcon}>🔍</Text>
       </View>
 
-      <ScrollView 
-        style={styles.scrollView}
-        contentContainerStyle={styles.scrollContent}
+      <FlatList
+        data={books}
+        renderItem={renderItem}
+        keyExtractor={(item) => item.guid}
+        numColumns={numColumns}
+        key={numColumns}
+        columnWrapperStyle={numColumns > 1 ? styles.row : undefined}
+        contentContainerStyle={styles.listContent}
+        ListEmptyComponent={renderEmptyComponent}
         showsVerticalScrollIndicator={false}
-      >
-        {renderBookGrid()}
-      </ScrollView>
+      />
     </View>
   );
 };
@@ -174,22 +185,16 @@ const styles = StyleSheet.create({
     right: 28,
     fontSize: 20,
   },
-  scrollView: {
-    flex: 1,
-  },
-  scrollContent: {
+  listContent: {
     padding: 16,
-  },
-  gridContainer: {
-    flex: 1,
+    flexGrow: 1,
   },
   row: {
-    flexDirection: 'row',
-    gap: 16,
-    marginBottom: 0,
+    justifyContent: 'flex-start',
+    gap: CARD_GAP,
   },
   cardWrapper: {
-    flex: 1,
+    marginBottom: 16,
   },
   centerContainer: {
     flex: 1,

@@ -33,6 +33,7 @@ const LibraryCard: React.FC<LibraryCardProps> = ({
           {bookName}
         </Text>
 
+        {/* stats view */}
         <View style={styles.statsContainer}>
           <View style={styles.statRow}>
             <Text style={styles.statIcon}>⏱️</Text>
@@ -50,10 +51,10 @@ const LibraryCard: React.FC<LibraryCardProps> = ({
 
 const styles = StyleSheet.create({
   card: {
+    flex: 1,
     backgroundColor: '#ffffff',
     borderRadius: 12,
     padding: 12,
-    marginBottom: 16,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
@@ -62,7 +63,7 @@ const styles = StyleSheet.create({
   },
   imageContainer: {
     width: '100%',
-    aspectRatio: 0.7,
+    flex: 1,
     borderRadius: 8,
     overflow: 'hidden',
     marginBottom: 8,
@@ -82,14 +83,14 @@ const styles = StyleSheet.create({
     fontSize: 48,
   },
   infoContainer: {
-    flex: 1,
+    minHeight: 70,
   },
   bookName: {
     fontSize: 14,
     fontWeight: '600',
     color: '#333',
     marginBottom: 8,
-    minHeight: 36,
+    height: 36,
   },
   statsContainer: {
     gap: 4,
