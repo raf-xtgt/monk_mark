@@ -30,7 +30,7 @@ interface AppStateProviderProps {
 }
 
 export const AppStateProvider: React.FC<AppStateProviderProps> = ({ children }) => {
-    const [showTopBar, setShowTopBar] = useState(true);
+    const [showTopBar, setShowTopBar] = useState(false);
     const [showBottomNavigation, setShowBottomNavigation] = useState(true);
     const [user, setUser] = useState<UserStateDto | null>(null);
     const [currentRoute, setCurrentRoute] = useState(1);
