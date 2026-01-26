@@ -15,7 +15,7 @@ interface BookRecord {
 const RecentReading: React.FC = () => {
   const [books, setBooks] = useState<BookRecord[]>([]);
   const [loading, setLoading] = useState(true);
-  const { user } = useAppState();
+  const { user, setCurrentRoute } = useAppState();
 
   useEffect(() => {
     loadRecentBooks();
@@ -39,11 +39,16 @@ const RecentReading: React.FC = () => {
     }
   };
 
+  const handleViewAll = () => {
+    setCurrentRoute(2); // Navigate to Library page
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.title}>Continue reading</Text>
-        <TouchableOpacity style={styles.viewAllButton}>
+        {/* View All button */}
+        <TouchableOpacity style={styles.viewAllButton} onPress={handleViewAll}>
           <Ionicons name="book" size={20} color="#000" />
           <Text style={styles.viewAllText}>View All</Text>
         </TouchableOpacity>
