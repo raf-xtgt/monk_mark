@@ -1,16 +1,111 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity } from 'react-native';
-import { LibraryService } from '../../_services/library-service';
+import React from 'react';
+import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
 
+interface LibraryCardProps {
+  bookName: string;
+  coverImageUrl?: string;
+  totalSessions: number;
+  totalTimeHours: number;
+  onPress?: () => void;
+}
 
-const LibraryCard: React.FC = () => {
-  
+const LibraryCard: React.FC<LibraryCardProps> = ({
+  bookName,
+  coverImageUrl,
+  totalSessions,
+  totalTimeHours,
+  onPress,
+}) => {
   return (
-    <View>
-        <Text>Library card</Text>
+    <TouchableOpacity style={styles.card} onPress={onPress} activeOpacity={0.7}>
+      <View style={styles.imageContainer}>
+        {coverImageUrl ? (
+          <Image source={{ uri: coverImageUrl }} style={styles.bookImage} resizeMode="cover" />
+        ) : (
+          <View style={styles.placeholderImage}>
+            <Text style={styles.placeholderText}>📚</Text>
+          </View>
+        )}
+      </View>
 
-    </View>
+      <View style={styles.infoContainer}>
+        <Text style={styles.bookName} numberOfLines={2} ellipsizeMode="tail">
+          {bookName}
+        </Text>
+
+        <View style={styles.statsContainer}>
+          <View style={styles.statRow}>
+            <Text style={styles.statIcon}>⏱️</Text>
+            <Text style={styles.statText}>{totalTimeHours.toFixed(1)}hrs</Text>
+          </View>
+          <View style={styles.statRow}>
+            <Text style={styles.statIcon}>📖</Text>
+            <Text style={styles.statText}>{totalSessions} sessions</Text>
+          </View>
+        </View>
+      </View>
+    </TouchableOpacity>
   );
 };
+
+const styles = StyleSheet.create({
+  card: {
+    backgroundColor: '#ffffff',
+    borderRadius: 12,
+    padding: 12,
+    marginBottom: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  imageContainer: {
+    width: '100%',
+    aspectRatio: 0.7,
+    borderRadius: 8,
+    overflow: 'hidden',
+    marginBottom: 8,
+  },
+  bookImage: {
+    width: '100%',
+    height: '100%',
+  },
+  placeholderImage: {
+    width: '100%',
+    height: '100%',
+    backgroundColor: '#e0e0e0',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  placeholderText: {
+    fontSize: 48,
+  },
+  infoContainer: {
+    flex: 1,
+  },
+  bookName: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#333',
+    marginBottom: 8,
+    minHeight: 36,
+  },
+  statsContainer: {
+    gap: 4,
+  },
+  statRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  statIcon: {
+    fontSize: 14,
+  },
+  statText: {
+    fontSize: 12,
+    color: '#666',
+  },
+});
 
 export default LibraryCard;
