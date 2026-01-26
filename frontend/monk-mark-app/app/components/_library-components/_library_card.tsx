@@ -33,14 +33,17 @@ const LibraryCard: React.FC<LibraryCardProps> = ({
           {bookName}
         </Text>
 
-        {/* stats view */}
         <View style={styles.statsContainer}>
           <View style={styles.statRow}>
-            <Text style={styles.statIcon}>⏱️</Text>
+            <View style={styles.iconCircle}>
+              <Text style={styles.statIcon}>⏱</Text>
+            </View>
             <Text style={styles.statText}>{totalTimeHours.toFixed(1)}hrs</Text>
           </View>
           <View style={styles.statRow}>
-            <Text style={styles.statIcon}>📖</Text>
+            <View style={styles.iconCircle}>
+              <Text style={styles.statIcon}>📖</Text>
+            </View>
             <Text style={styles.statText}>{totalSessions} sessions</Text>
           </View>
         </View>
@@ -89,23 +92,32 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
     color: '#333',
-    marginBottom: 8,
+    marginBottom: 6,
     height: 36,
   },
   statsContainer: {
-    gap: 4,
+    gap: 6,
   },
   statRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
+    gap: 6,
+  },
+  iconCircle: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    backgroundColor: '#f0f0f0',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   statIcon: {
-    fontSize: 14,
+    fontSize: 12,
   },
   statText: {
-    fontSize: 12,
-    color: '#666',
+    fontSize: 11,
+    color: '#888',
+    fontWeight: '400',
   },
 });
 
