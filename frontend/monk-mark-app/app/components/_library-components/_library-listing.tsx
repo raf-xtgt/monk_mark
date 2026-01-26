@@ -7,7 +7,7 @@ import LibraryCard from './_library_card';
 interface LibraryBook {
   guid: string;
   book_name: string;
-  cover_image_url?: string;
+  storage_path?: string;
   total_sessions?: number;
   total_time_hrs?: number;
 }
