@@ -4,8 +4,6 @@ from uuid import UUID
 
 
 class LibraryHdrQueryCriteria(BaseModel):
-    guid: Optional[UUID]
-    user_guid: Optional[UUID]
-    book_name: Optional[str]
-    
-
+    guid: Optional[UUID] = None
+    user_guid: Optional[UUID] = None
+    book_name: Optional[str] = None

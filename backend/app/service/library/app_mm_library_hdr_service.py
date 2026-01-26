@@ -77,11 +77,9 @@ class AppMmLibraryHdrService:
 
     @staticmethod
     def get_library_hdrs_by_criteria(guid: Optional[UUID] = None, user_guid: Optional[UUID] = None, book_name: Optional[str] = None) -> List[AppMmLibraryHdrWithFileResponse]:
-        """Get library headers by criteria with file storage path, ordered by last_read descending"""
-        # Build query with left join to app_mm_file_upload
-        query = supabase.table(AppMmLibraryHdrService.TABLE_NAME).select(
-            "*, app_mm_file_upload(storage_path)"
-        )
+        """Get library headers by criteria with file storage path (manual join), ordered by last_read descending"""
+        # First, query library headers with filters
+        query = supabase.table(AppMmLibraryHdrService.TABLE_NAME).select("*")
         
         if guid:
             query = query.eq("guid", str(guid))
@@ -93,11 +91,29 @@ class AppMmLibraryHdrService:
         # Order by last_read descending
         query = query.order("last_read", desc=True)
         
-        response = query.execute()
+        library_response = query.execute()
         
-        # Transform the response to include storage_path
+        if not library_response.data:
+            return []
+        
+        # Collect all unique file_guids that are not None
+        file_guids = [item["file_guid"] for item in library_response.data if item.get("file_guid")]
+        
+        # Fetch file upload records if there are any file_guids
+        file_map = {}
+        if file_guids:
+            file_response = supabase.table(AppMmLibraryHdrService.FILE_UPLOAD_TABLE).select("guid, storage_path").in_("guid", file_guids).execute()
+            
+            # Create a map of file_guid -> storage_path
+            for file_record in file_response.data:
+                file_map[file_record["guid"]] = file_record["storage_path"]
+        
+        # Combine the data
         result = []
-        for item in response.data:
+        for item in library_response.data:
+            file_guid = item.get("file_guid")
+            storage_path = file_map.get(file_guid) if file_guid else None
+            
             library_data = {
                 "guid": item["guid"],
                 "user_guid": item["user_guid"],
@@ -106,7 +122,7 @@ class AppMmLibraryHdrService:
                 "file_guid": item["file_guid"],
                 "created_date": item["created_date"],
                 "last_read": item["last_read"],
-                "storage_path": item["app_mm_file_upload"]["storage_path"] if item.get("app_mm_file_upload") else None
+                "storage_path": storage_path
             }
             result.append(AppMmLibraryHdrWithFileResponse(**library_data))
         
