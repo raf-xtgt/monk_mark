@@ -65,3 +65,8 @@ uvicorn main:app --reload
 ```
 npx expo start -c
 ```
+
+## Get a ngrok url for testing
+```
+ngrok http 8000
+```
