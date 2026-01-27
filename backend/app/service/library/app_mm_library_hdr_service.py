@@ -185,7 +185,7 @@ class AppMmLibraryHdrService:
                 "guid": item["guid"],
                 "user_guid": item["user_guid"],
                 "book_name": item["book_name"],
-                "book_desc": item["book_desc"],
+                "book_desc": "",
                 "file_guid": item["file_guid"],
                 "created_date": item["created_date"],
                 "last_read": item["last_read"],

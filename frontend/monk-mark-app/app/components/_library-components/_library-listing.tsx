@@ -8,7 +8,7 @@ interface LibraryBook {
   guid: string;
   book_name: string;
   storage_path?: string;
-  total_sessions?: number;
+  session_count?: number;
   total_time_hrs?: number;
 }
 
@@ -114,7 +114,7 @@ const LibraryListing: React.FC = () => {
       <LibraryCard
         bookName={item.book_name}
         coverImageUrl={item.storage_path}
-        totalSessions={item.total_sessions || 0}
+        totalSessions={item.session_count || 0}
         totalTimeHours={item.total_time_hrs || 0}
         onPress={() => handleBookPress(item)}
       />
