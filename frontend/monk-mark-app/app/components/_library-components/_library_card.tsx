@@ -5,7 +5,7 @@ interface LibraryCardProps {
   bookName: string;
   coverImageUrl?: string;
   totalSessions: number;
-  totalTimeHours: number;
+  focusTime: string;
   onPress?: () => void;
 }
 
@@ -13,7 +13,7 @@ const LibraryCard: React.FC<LibraryCardProps> = ({
   bookName,
   coverImageUrl,
   totalSessions,
-  totalTimeHours,
+  focusTime,
   onPress,
 }) => {
   return (
@@ -38,7 +38,7 @@ const LibraryCard: React.FC<LibraryCardProps> = ({
             <View style={styles.iconCircle}>
               <Text style={styles.statIcon}>⏱</Text>
             </View>
-            <Text style={styles.statText}>{totalTimeHours.toFixed(1)}hrs</Text>
+            <Text style={styles.statText}>{focusTime}</Text>
           </View>
           <View style={styles.statRow}>
             <View style={styles.iconCircle}>

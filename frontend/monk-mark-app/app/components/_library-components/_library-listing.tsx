@@ -9,7 +9,7 @@ interface LibraryBook {
   book_name: string;
   storage_path?: string;
   session_count?: number;
-  total_time_hrs?: number;
+  focus_time?: string;
 }
 
 const CARD_MIN_WIDTH = 150;
@@ -115,7 +115,7 @@ const LibraryListing: React.FC = () => {
         bookName={item.book_name}
         coverImageUrl={item.storage_path}
         totalSessions={item.session_count || 0}
-        totalTimeHours={item.total_time_hrs || 0}
+        focusTime={item.focus_time || '0h 0min'}
         onPress={() => handleBookPress(item)}
       />
     </View>
