@@ -93,6 +93,32 @@ export const LibraryService = {
             throw error;
         }
     },
+
+    async updateLastReadLibraryBookRecord(libraryGuid: string): Promise<any> {
+        try {
+            const response = await fetch(`${API_BASE_URL}/librarys/update-last-read/${libraryGuid}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const result = await response.json();
+
+            if (result.status === 'OK_RESPONSE') {
+                return result.data;
+            } else {
+                throw new Error(result.data?.message || 'Failed to update last read time');
+            }
+        } catch (error) {
+            console.error('Error updating last read time:', error);
+            throw error;
+        }
+    },
 };
 
 
