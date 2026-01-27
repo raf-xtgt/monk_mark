@@ -70,6 +70,22 @@ class AppMmLibraryHdrService:
         return AppMmLibraryHdrResponse(**response.data[0])
     
     @staticmethod
+    def update_last_read(library_hdr_id: UUID) -> Optional[AppMmLibraryHdrResponse]:
+        """Update last_read timestamp to current time"""
+        from datetime import datetime, timezone
+        
+        update_data = {
+            "last_read": datetime.now(timezone.utc).isoformat()
+        }
+        
+        response = supabase.table(AppMmLibraryHdrService.TABLE_NAME).update(update_data).eq("guid", str(library_hdr_id)).execute()
+        
+        if not response.data:
+            return None
+        
+        return AppMmLibraryHdrResponse(**response.data[0])
+    
+    @staticmethod
     def delete_library_hdr(library_hdr_id: UUID) -> bool:
         """Delete library header by GUID"""
         response = supabase.table(AppMmLibraryHdrService.TABLE_NAME).delete().eq("guid", str(library_hdr_id)).execute()

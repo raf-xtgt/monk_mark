@@ -47,6 +47,14 @@ def update_library_hdr(library_hdr_id: UUID, library_hdr: AppMmLibraryHdrUpdate)
         return ApiResponse.error({"message": "Library header not found"})
     return ApiResponse.success(updated_library_hdr)
 
+@router.put("/update-last-read/{library_hdr_id}", response_model=ApiResponse[AppMmLibraryHdrResponse])
+def update_last_read_library_hdr(library_hdr_id: UUID):
+    """Update last read time of the library"""
+    updated_library_hdr = AppMmLibraryHdrService.update_last_read(library_hdr_id)
+    if not updated_library_hdr:
+        return ApiResponse.error({"message": "Library header not found"})
+    return ApiResponse.success(updated_library_hdr)
+
 @router.delete("/delete-by-guid/{library_hdr_id}", response_model=ApiResponse[dict])
 def delete_library_hdr(library_hdr_id: UUID):
     """Delete library header by ID"""
