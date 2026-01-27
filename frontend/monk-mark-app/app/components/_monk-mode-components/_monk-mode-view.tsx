@@ -24,13 +24,13 @@ const MonkModeView: React.FC<MonkModeViewProps> = ({ selectedBook }) => {
   const [currentMinutes, setCurrentMinutes] = useState(0);
   const [currentSeconds, setCurrentSeconds] = useState(0);
   const [initialTimeSeconds, setInitialTimeSeconds] = useState(0);
-  
-  const { 
-    focusSession, 
-    setFocusSession, 
-    setShowTopBar, 
+
+  const {
+    focusSession,
+    setFocusSession,
+    setShowTopBar,
     setShowBottomNavigation,
-    user 
+    user
   } = useAppState();
 
   if (!selectedBook) {
@@ -52,12 +52,7 @@ const MonkModeView: React.FC<MonkModeViewProps> = ({ selectedBook }) => {
       setInitialTimeSeconds(totalSeconds);
 
       // Update last_read in library record
-      await LibraryService.updateLibraryBookRecord(
-        focusSession.libraryHdrGuid,
-        {
-          last_read: new Date().toISOString(),
-        }
-      );
+      await LibraryService.updateLastReadLibraryBookRecord(focusSession.libraryHdrGuid);
 
       // Create focus session in database
       const createdSession = await FocusSessionService.createFocusSession({
@@ -75,7 +70,7 @@ const MonkModeView: React.FC<MonkModeViewProps> = ({ selectedBook }) => {
 
       // Start timer
       setIsRunning(true);
-      
+
       // Hide top and bottom bars
       setShowTopBar(false);
       setShowBottomNavigation(false);
@@ -108,7 +103,7 @@ const MonkModeView: React.FC<MonkModeViewProps> = ({ selectedBook }) => {
 
       // Stop timer
       setIsRunning(false);
-      
+
       // Show top and bottom bars
       setShowTopBar(true);
       setShowBottomNavigation(true);
@@ -120,14 +115,14 @@ const MonkModeView: React.FC<MonkModeViewProps> = ({ selectedBook }) => {
   return (
     <View style={styles.container}>
       <FocusTimer isRunning={isRunning} onTimeUpdate={handleTimeUpdate} />
-      
+
       <View style={styles.bookSection}>
-        <Image 
-          source={{ uri: selectedBook.cover_image_url }} 
+        <Image
+          source={{ uri: selectedBook.cover_image_url }}
           style={styles.bookCover}
           resizeMode="cover"
         />
-        
+
         {/* <View style={styles.bookInfo}>
           <Text style={styles.bookName}>{selectedBook.book_name}</Text>
           <Text style={styles.author}>by {selectedBook.author_name}</Text>
@@ -146,7 +141,7 @@ const MonkModeView: React.FC<MonkModeViewProps> = ({ selectedBook }) => {
               <TouchableOpacity style={styles.pauseButton} onPress={handlePause}>
                 <Ionicons name="pause" size={32} color="white" />
               </TouchableOpacity>
-              
+
               {/* stop button */}
               <TouchableOpacity style={styles.stopButton} onPress={handleStop}>
                 <Ionicons name="stop" size={32} color="white" />
