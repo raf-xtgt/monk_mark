@@ -39,6 +39,7 @@ class AppMmLibraryHdrWithFileResponse(BaseModel):
     session_count: Optional[int] = 0
     time_focused_hrs: Optional[float] = 0.0
     time_focused_minutes: Optional[int] = 0
+    focus_time: Optional[str] = "0h 0min"
 
     class Config:
         from_attributes = True

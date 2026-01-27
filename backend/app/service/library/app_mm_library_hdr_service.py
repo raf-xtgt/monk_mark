@@ -181,6 +181,9 @@ class AppMmLibraryHdrService:
             time_focused_hrs = int(total_hrs)
             time_focused_minutes = int((total_hrs - time_focused_hrs) * 60)
             
+            # Format focus_time as "00h 00min"
+            focus_time = f"{time_focused_hrs}h {time_focused_minutes}min"
+            
             library_data = {
                 "guid": item["guid"],
                 "user_guid": item["user_guid"],
@@ -192,7 +195,8 @@ class AppMmLibraryHdrService:
                 "storage_path": storage_path,
                 "session_count": focus_stats["count"],
                 "time_focused_hrs": time_focused_hrs,
-                "time_focused_minutes": time_focused_minutes
+                "time_focused_minutes": time_focused_minutes,
+                "focus_time": focus_time
             }
             result.append(AppMmLibraryHdrWithFileResponse(**library_data))
         
