@@ -1,17 +1,16 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
 
-const NoteTakingTimer: React.FC<any> = () => {
+const NoteTakingBackground: React.FC<any> = () => {
 
 
   return (
     <View>
-        <Text>Back button</Text>
-        <Text>Note taking timer</Text>
+        <Text>Note taking background</Text>
     </View>
   );
 };
 
 
 
-export default NoteTakingTimer;
+export default NoteTakingBackground;

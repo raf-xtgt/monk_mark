@@ -9,12 +9,14 @@ interface AppState {
     currentRoute: number;
     focusSession: FocusSessionDto | null;
     notesTaken: string[];
+    focusTimer: { hours: number; minutes: number; seconds: number } | null;
     setShowTopBar: (show: boolean) => void;
     setShowBottomNavigation: (show: boolean) => void;
     setUser: (user: UserStateDto | null) => void;
     setCurrentRoute: (route: number) => void;
     setFocusSession: (focusSession: FocusSessionDto | null) => void;
     setNotesTaken: (notes: string[]) => void;
+    setFocusTimer: (timer: { hours: number; minutes: number; seconds: number } | null) => void;
 }
 
 const AppStateContext = createContext<AppState | undefined>(undefined);
@@ -38,6 +40,7 @@ export const AppStateProvider: React.FC<AppStateProviderProps> = ({ children }) 
     const [currentRoute, setCurrentRoute] = useState(1);
     const [focusSession, setFocusSession] = useState<FocusSessionDto | null>(null);
     const [notesTaken, setNotesTaken] = useState<string[]>([]);
+    const [focusTimer, setFocusTimer] = useState<{ hours: number; minutes: number; seconds: number } | null>(null);
 
     const value: AppState = {
         showTopBar,
@@ -46,12 +49,14 @@ export const AppStateProvider: React.FC<AppStateProviderProps> = ({ children }) 
         currentRoute,
         focusSession,
         notesTaken,
+        focusTimer,
         setShowTopBar,
         setShowBottomNavigation,
         setUser,
         setCurrentRoute,
         setFocusSession,
         setNotesTaken,
+        setFocusTimer,
     };
 
     return (
