@@ -8,7 +8,7 @@ interface BottomNavigationProps {
 }
 
 const BottomNavigation: React.FC<BottomNavigationProps> = ({ currentRoute, onNavigate }) => {
-  const regularRoutes = routes.filter(r => r.id !== 4); // Exclude MonkMode
+  const regularRoutes = routes.filter(r => r.id !== 4 && r.id !== 6); // Exclude MonkMode and NoteTaker
   const monkModeRoute = routes.find(r => r.id === 4); // MonkMode route
 
   return (
