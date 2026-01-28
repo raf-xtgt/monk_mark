@@ -15,6 +15,7 @@ class AppMmNotebookContentService:
             "user_guid": str(content_data.user_guid),
             "notebook_hdr_guid": str(content_data.notebook_hdr_guid),
             "library_hdr_guid": str(content_data.library_hdr_guid) if content_data.library_hdr_guid else None,
+            "focus_session_guid": str(content_data.focus_session_guid) if content_data.focus_session_guid else None,
             "content_text": content_data.content_text,
             "image_url": content_data.image_url,
             "highlight_metadata": content_data.highlight_metadata,
@@ -75,6 +76,8 @@ class AppMmNotebookContentService:
             update_data["notebook_hdr_guid"] = str(update_data["notebook_hdr_guid"])
         if "library_hdr_guid" in update_data:
             update_data["library_hdr_guid"] = str(update_data["library_hdr_guid"]) if update_data["library_hdr_guid"] else None
+        if "focus_session_guid" in update_data:
+            update_data["focus_session_guid"] = str(update_data["focus_session_guid"]) if update_data["focus_session_guid"] else None
         
         update_data["updated_date"] = datetime.now().isoformat()
         

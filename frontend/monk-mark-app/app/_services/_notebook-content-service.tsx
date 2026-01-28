@@ -6,10 +6,12 @@ export const NotebookContentService = {
     async create(payload: {
         notebook_hdr_guid: string;
         user_guid: string;
-        content_type: string;
+        library_hdr_guid?: string;
+        focus_session_guid?: string;
         content_text?: string;
-        content_image_url?: string;
-        page_number?: number;
+        image_url?: string;
+        highlight_metadata?: any;
+        sequence_no?: number;
     }): Promise<any> {
         try {
             const response = await fetch(`${API_BASE_URL}/notebook-contents/create`, {
@@ -142,10 +144,14 @@ export const NotebookContentService = {
     },
 
     async update(contentId: string, payload: {
-        content_type?: string;
+        user_guid?: string;
+        notebook_hdr_guid?: string;
+        library_hdr_guid?: string;
+        focus_session_guid?: string;
         content_text?: string;
-        content_image_url?: string;
-        page_number?: number;
+        image_url?: string;
+        highlight_metadata?: any;
+        sequence_no?: number;
     }): Promise<any> {
         try {
             const response = await fetch(`${API_BASE_URL}/notebook-contents/update/${contentId}`, {
