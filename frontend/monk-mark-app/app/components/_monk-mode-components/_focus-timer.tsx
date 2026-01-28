@@ -11,15 +11,28 @@ interface FocusTimerProps {
 }
 
 const FocusTimer: React.FC<FocusTimerProps> = ({ isRunning, onTimeUpdate }) => {
-  const { setFocusTimer } = useAppState();
-  const [hours, setHours] = useState(0);
-  const [minutes, setMinutes] = useState(30);
-  const [seconds, setSeconds] = useState(0);
+  const { focusTimer, setFocusTimer, focusSessionMetadata, setFocusSessionMetadata } = useAppState();
   const [showModal, setShowModal] = useState(false);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
+  // Initialize from global state or defaults
+  const [hours, setHours] = useState(focusTimer?.hours ?? 0);
+  const [minutes, setMinutes] = useState(focusTimer?.minutes ?? 30);
+  const [seconds, setSeconds] = useState(focusTimer?.seconds ?? 0);
+
+  // Sync local state with global state when component mounts or global state changes
   useEffect(() => {
-    if (isRunning) {
+    if (focusTimer) {
+      setHours(focusTimer.hours);
+      setMinutes(focusTimer.minutes);
+      setSeconds(focusTimer.seconds);
+    }
+  }, [focusTimer]);
+
+  useEffect(() => {
+    const shouldRun = focusSessionMetadata?.isRunning ?? isRunning;
+    
+    if (shouldRun) {
       intervalRef.current = setInterval(() => {
         setSeconds((prevSeconds) => {
           if (prevSeconds > 0) {
@@ -55,7 +68,7 @@ const FocusTimer: React.FC<FocusTimerProps> = ({ isRunning, onTimeUpdate }) => {
         clearInterval(intervalRef.current);
       }
     };
-  }, [isRunning]);
+  }, [isRunning, focusSessionMetadata]);
 
   useEffect(() => {
     // Sync with global state

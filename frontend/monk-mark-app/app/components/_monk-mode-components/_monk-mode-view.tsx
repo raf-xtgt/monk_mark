@@ -19,7 +19,6 @@ interface MonkModeViewProps {
 }
 
 const MonkModeView: React.FC<MonkModeViewProps> = ({ selectedBook }) => {
-  const [isRunning, setIsRunning] = useState(false);
   const [currentHours, setCurrentHours] = useState(0);
   const [currentMinutes, setCurrentMinutes] = useState(0);
   const [currentSeconds, setCurrentSeconds] = useState(0);
@@ -31,8 +30,13 @@ const MonkModeView: React.FC<MonkModeViewProps> = ({ selectedBook }) => {
     setShowTopBar,
     setShowBottomNavigation,
     setCurrentRoute,
+    focusSessionMetadata,
+    setFocusSessionMetadata,
     user
   } = useAppState();
+
+  // Get isRunning from global state
+  const isRunning = focusSessionMetadata?.isRunning ?? false;
 
   if (!selectedBook) {
     return null;
@@ -69,8 +73,12 @@ const MonkModeView: React.FC<MonkModeViewProps> = ({ selectedBook }) => {
         focusSessionGuid: createdSession.focusSessionGuid,
       });
 
-      // Start timer
-      setIsRunning(true);
+      // Update metadata with running state and book info
+      setFocusSessionMetadata({
+        bookName: selectedBook.book_name,
+        coverImageUrl: selectedBook.cover_image_url,
+        isRunning: true,
+      });
 
       // Hide top and bottom bars
       setShowTopBar(false);
@@ -81,7 +89,12 @@ const MonkModeView: React.FC<MonkModeViewProps> = ({ selectedBook }) => {
   };
 
   const handlePause = () => {
-    setIsRunning(false);
+    setFocusSessionMetadata({
+      ...focusSessionMetadata,
+      bookName: focusSessionMetadata?.bookName ?? selectedBook.book_name,
+      coverImageUrl: focusSessionMetadata?.coverImageUrl ?? selectedBook.cover_image_url,
+      isRunning: false,
+    });
     setShowTopBar(true);
     setShowBottomNavigation(true);
   };
@@ -102,8 +115,8 @@ const MonkModeView: React.FC<MonkModeViewProps> = ({ selectedBook }) => {
         timeSeconds: elapsedSeconds,
       });
 
-      // Stop timer
-      setIsRunning(false);
+      // Stop timer and clear metadata
+      setFocusSessionMetadata(null);
 
       // Show top and bottom bars
       setShowTopBar(true);
