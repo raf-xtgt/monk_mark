@@ -1,16 +1,63 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useAppState } from '../../_state-controller/state-controller';
 
 const NoteTakingTimer: React.FC = () => {
-  const { focusTimer, setCurrentRoute } = useAppState();
+  const { focusTimer, setFocusTimer, focusSessionMetadata, setCurrentRoute } = useAppState();
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const formatTime = (value: number) => value.toString().padStart(2, '0');
 
   const handleBackPress = () => {
     setCurrentRoute(4); // Navigate back to MonkMode
   };
+
+  // Continue the countdown if session is running
+  useEffect(() => {
+    const isRunning = focusSessionMetadata?.isRunning ?? false;
+
+    if (isRunning && focusTimer) {
+      intervalRef.current = setInterval(() => {
+        setFocusTimer((prevTimer) => {
+          if (!prevTimer) return null;
+
+          let { hours, minutes, seconds } = prevTimer;
+
+          if (seconds > 0) {
+            seconds -= 1;
+          } else {
+            if (minutes > 0) {
+              minutes -= 1;
+              seconds = 59;
+            } else {
+              if (hours > 0) {
+                hours -= 1;
+                minutes = 59;
+                seconds = 59;
+              } else {
+                // Timer reached 0
+                return { hours: 0, minutes: 0, seconds: 0 };
+              }
+            }
+          }
+
+          return { hours, minutes, seconds };
+        });
+      }, 1000);
+    } else {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+    }
+
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+    };
+  }, [focusSessionMetadata, focusTimer, setFocusTimer]);
 
   return (
     <View style={styles.container}>
