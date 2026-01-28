@@ -2,10 +2,15 @@ import React from 'react';
 import { View, StyleSheet, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import NoteTakingTimer from './_note-taking-timer';
+import { useAppState } from '../../_state-controller/state-controller';
 
 const NoteTakingView: React.FC = () => {
+  const { focusSession, user } = useAppState();
+
   const handleCameraPress = () => {
     console.log('Camera button pressed');
+    console.log('Focus Session:', focusSession);
+    console.log('User:', user);
     // TODO: Implement camera functionality
   };
 
