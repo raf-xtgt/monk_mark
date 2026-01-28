@@ -146,6 +146,11 @@ const MonkModeView: React.FC<MonkModeViewProps> = ({ selectedBook }) => {
               <TouchableOpacity style={styles.stopButton} onPress={handleStop}>
                 <Ionicons name="stop" size={32} color="white" />
               </TouchableOpacity>
+
+              {/* note taking button */}
+              <TouchableOpacity style={styles.noteButton} onPress={() => console.log('Note taking pressed')}>
+                <Ionicons name="create-outline" size={32} color="white" />
+              </TouchableOpacity>
             </>
           )}
         </View>
@@ -232,6 +237,19 @@ const styles = StyleSheet.create({
     height: 56,
     borderRadius: 28,
     backgroundColor: '#ff6b9d',
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  noteButton: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: '#9b59b6',
     justifyContent: 'center',
     alignItems: 'center',
     shadowColor: '#000',
