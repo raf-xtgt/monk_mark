@@ -1,18 +1,20 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
+import React from 'react';
+import { View, StyleSheet } from 'react-native';
 import NoteTakingTimer from './_note-taking-timer';
 
-const NoteTakingView: React.FC<any> = () => {
-
-
+const NoteTakingView: React.FC = () => {
   return (
-    <View>
-        <Text>Note taking view</Text>
-        <NoteTakingTimer />
+    <View style={styles.container}>
+      <NoteTakingTimer />
+      {/* Note taking content will go here */}
     </View>
   );
 };
 
-
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+});
 
 export default NoteTakingView;
