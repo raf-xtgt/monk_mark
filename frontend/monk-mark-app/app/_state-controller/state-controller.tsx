@@ -8,11 +8,13 @@ interface AppState {
     user: UserStateDto | null;
     currentRoute: number;
     focusSession: FocusSessionDto | null;
+    notesTaken: string[];
     setShowTopBar: (show: boolean) => void;
     setShowBottomNavigation: (show: boolean) => void;
     setUser: (user: UserStateDto | null) => void;
     setCurrentRoute: (route: number) => void;
     setFocusSession: (focusSession: FocusSessionDto | null) => void;
+    setNotesTaken: (notes: string[]) => void;
 }
 
 const AppStateContext = createContext<AppState | undefined>(undefined);
@@ -35,6 +37,7 @@ export const AppStateProvider: React.FC<AppStateProviderProps> = ({ children }) 
     const [user, setUser] = useState<UserStateDto | null>(null);
     const [currentRoute, setCurrentRoute] = useState(1);
     const [focusSession, setFocusSession] = useState<FocusSessionDto | null>(null);
+    const [notesTaken, setNotesTaken] = useState<string[]>([]);
 
     const value: AppState = {
         showTopBar,
@@ -42,11 +45,13 @@ export const AppStateProvider: React.FC<AppStateProviderProps> = ({ children }) 
         user,
         currentRoute,
         focusSession,
+        notesTaken,
         setShowTopBar,
         setShowBottomNavigation,
         setUser,
         setCurrentRoute,
         setFocusSession,
+        setNotesTaken,
     };
 
     return (
