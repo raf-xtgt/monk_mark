@@ -9,6 +9,14 @@ const NoteTakingTimer: React.FC = () => {
 
   const formatTime = (value: number) => value.toString().padStart(2, '0');
 
+  const getTruncatedTitle = () => {
+    const bookName = focusSessionMetadata?.bookName || 'Unknown Book';
+    if (bookName.length > 10) {
+      return `${bookName.substring(0, 10)}... - Notes`;
+    }
+    return `${bookName} - Notes`;
+  };
+
   const handleBackPress = () => {
     setCurrentRoute(4); // Navigate back to MonkMode
   };
@@ -66,13 +74,16 @@ const NoteTakingTimer: React.FC = () => {
         <Ionicons name="arrow-back" size={24} color="#333" />
       </TouchableOpacity>
 
-      {/* Timer Display */}
-      <View style={styles.timerContainer}>
+      {/* Timer Display and Title */}
+      <View style={styles.centerContainer}>
         <Text style={styles.timerText}>
           {focusTimer
             ? `${formatTime(focusTimer.hours)}:${formatTime(focusTimer.minutes)}:${formatTime(focusTimer.seconds)}`
             : '00:00:00'}
         </Text>
+        <View style={styles.titleContainer}>
+          <Text style={styles.titleText}>{getTruncatedTitle()}</Text>
+        </View>
       </View>
 
       {/* Active Session Indicator */}
@@ -99,7 +110,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  timerContainer: {
+  centerContainer: {
     flex: 1,
     alignItems: 'center',
   },
@@ -108,6 +119,18 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#333',
     letterSpacing: 1,
+    marginBottom: 8,
+  },
+  titleContainer: {
+    backgroundColor: '#e8e8e8',
+    paddingHorizontal: 16,
+    paddingVertical: 6,
+    borderRadius: 8,
+  },
+  titleText: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#333',
   },
   indicatorContainer: {
     padding: 8,
