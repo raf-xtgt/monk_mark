@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Modal } from 'react-native';
+import { useAppState } from '../../_state-controller/state-controller';
 
 const MIN_MINUTES = 30;
 const MAX_HOURS = 5;
@@ -10,6 +11,7 @@ interface FocusTimerProps {
 }
 
 const FocusTimer: React.FC<FocusTimerProps> = ({ isRunning, onTimeUpdate }) => {
+  const { setFocusTimer } = useAppState();
   const [hours, setHours] = useState(0);
   const [minutes, setMinutes] = useState(30);
   const [seconds, setSeconds] = useState(0);
@@ -56,10 +58,13 @@ const FocusTimer: React.FC<FocusTimerProps> = ({ isRunning, onTimeUpdate }) => {
   }, [isRunning]);
 
   useEffect(() => {
+    // Sync with global state
+    setFocusTimer({ hours, minutes, seconds });
+    
     if (onTimeUpdate) {
       onTimeUpdate(hours, minutes, seconds);
     }
-  }, [hours, minutes, seconds, onTimeUpdate]);
+  }, [hours, minutes, seconds, onTimeUpdate, setFocusTimer]);
 
   const incrementHours = () => {
     if (hours < MAX_HOURS) {

@@ -30,6 +30,7 @@ const MonkModeView: React.FC<MonkModeViewProps> = ({ selectedBook }) => {
     setFocusSession,
     setShowTopBar,
     setShowBottomNavigation,
+    setCurrentRoute,
     user
   } = useAppState();
 
@@ -148,7 +149,7 @@ const MonkModeView: React.FC<MonkModeViewProps> = ({ selectedBook }) => {
               </TouchableOpacity>
 
               {/* note taking button */}
-              <TouchableOpacity style={styles.noteButton} onPress={() => console.log('Note taking pressed')}>
+              <TouchableOpacity style={styles.noteButton} onPress={() => setCurrentRoute(6)}>
                 <Ionicons name="create-outline" size={32} color="white" />
               </TouchableOpacity>
             </>
