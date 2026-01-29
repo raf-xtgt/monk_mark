@@ -20,6 +20,8 @@ const NoteContentView: React.FC<NoteContentViewProps> = ({
     onContentChange,
     onDiscard,
 }) => {
+    const [contentHeight, setContentHeight] = React.useState(60);
+
     return (
         <View style={[styles.container, isActive && styles.activeContainer]}>
             <TouchableOpacity
@@ -28,7 +30,7 @@ const NoteContentView: React.FC<NoteContentViewProps> = ({
                 activeOpacity={1}
             >
                 <TextInput
-                    style={styles.textInput}
+                    style={[styles.textInput, { height: Math.max(60, contentHeight) }]}
                     multiline
                     placeholder="Start typing your note..."
                     placeholderTextColor="#999"
@@ -36,6 +38,9 @@ const NoteContentView: React.FC<NoteContentViewProps> = ({
                     onChangeText={onContentChange}
                     onFocus={onPress}
                     textAlignVertical="top"
+                    onContentSizeChange={(event) => {
+                        setContentHeight(event.nativeEvent.contentSize.height);
+                    }}
                 />
             </TouchableOpacity>
 
@@ -59,9 +64,9 @@ const styles = StyleSheet.create({
         backgroundColor: '#fffacd',
         borderRadius: 8,
         padding: 16,
+        paddingBottom: 40,
         marginBottom: 16,
         marginHorizontal: 16,
-        minHeight: 150,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.1,
@@ -76,15 +81,14 @@ const styles = StyleSheet.create({
         borderColor: '#4FC3F7',
     },
     touchableArea: {
-        flex: 1,
-        minHeight: 120,
+        width: '100%',
     },
     textInput: {
-        flex: 1,
         fontSize: 16,
         color: '#333',
         lineHeight: 24,
-        minHeight: 120,
+        minHeight: 60,
+        paddingTop: 0,
     },
     discardButton: {
         position: 'absolute',
