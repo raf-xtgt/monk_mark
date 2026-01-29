@@ -11,6 +11,7 @@ interface AppState {
     notesTaken: string[];
     focusTimer: { hours: number; minutes: number; seconds: number } | null;
     focusSessionMetadata: { bookName: string; coverImageUrl: string; isRunning: boolean } | null;
+    noteContentViewMetadata: any;
     setShowTopBar: (show: boolean) => void;
     setShowBottomNavigation: (show: boolean) => void;
     setUser: (user: UserStateDto | null) => void;
@@ -19,6 +20,7 @@ interface AppState {
     setNotesTaken: (notes: string[]) => void;
     setFocusTimer: (timer: { hours: number; minutes: number; seconds: number } | null) => void;
     setFocusSessionMetadata: (metadata: { bookName: string; coverImageUrl: string; isRunning: boolean } | null) => void;
+    setNoteContentViewMetadata: (metadata: any) => void;
 }
 
 const AppStateContext = createContext<AppState | undefined>(undefined);
@@ -44,6 +46,7 @@ export const AppStateProvider: React.FC<AppStateProviderProps> = ({ children }) 
     const [notesTaken, setNotesTaken] = useState<string[]>([]);
     const [focusTimer, setFocusTimer] = useState<{ hours: number; minutes: number; seconds: number } | null>(null);
     const [focusSessionMetadata, setFocusSessionMetadata] = useState<{ bookName: string; coverImageUrl: string; isRunning: boolean } | null>(null);
+    const [noteContentViewMetadata, setNoteContentViewMetadata] = useState<any>(null);
 
     const value: AppState = {
         showTopBar,
@@ -54,6 +57,7 @@ export const AppStateProvider: React.FC<AppStateProviderProps> = ({ children }) 
         notesTaken,
         focusTimer,
         focusSessionMetadata,
+        noteContentViewMetadata,
         setShowTopBar,
         setShowBottomNavigation,
         setUser,
@@ -62,6 +66,7 @@ export const AppStateProvider: React.FC<AppStateProviderProps> = ({ children }) 
         setNotesTaken,
         setFocusTimer,
         setFocusSessionMetadata,
+        setNoteContentViewMetadata,
     };
 
     return (
