@@ -2,6 +2,7 @@ import React from 'react';
 import { View, StyleSheet, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import NoteTakingTimer from './_note-taking-timer';
+import NoteTakingPanel from './_note-taking-panel';
 import { useAppState } from '../../_state-controller/state-controller';
 
 const NoteTakingView: React.FC = () => {
@@ -19,10 +20,7 @@ const NoteTakingView: React.FC = () => {
       <NoteTakingTimer />
       {/* Note taking content will go here */}
 
-      {/* Floating Camera Button */}
-      <TouchableOpacity style={styles.floatingButton} onPress={handleCameraPress}>
-        <Ionicons name="camera" size={28} color="white" />
-      </TouchableOpacity>
+      <NoteTakingPanel />
     </View>
   );
 };
