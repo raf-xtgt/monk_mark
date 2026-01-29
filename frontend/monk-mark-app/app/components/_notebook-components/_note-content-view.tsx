@@ -10,6 +10,7 @@ interface NoteContentViewProps {
     onPress: () => void;
     onContentChange: (text: string) => void;
     onDiscard: () => void;
+    onCameraPress?: () => void;
 }
 
 const NoteContentView: React.FC<NoteContentViewProps> = ({
@@ -19,6 +20,7 @@ const NoteContentView: React.FC<NoteContentViewProps> = ({
     onPress,
     onContentChange,
     onDiscard,
+    onCameraPress,
 }) => {
     const [contentHeight, setContentHeight] = React.useState(60);
 
@@ -29,6 +31,16 @@ const NoteContentView: React.FC<NoteContentViewProps> = ({
                 onPress={onPress}
                 activeOpacity={1}
             >
+                {/* Camera button */}
+                <TouchableOpacity
+                    style={styles.cameraButton}
+                    onPress={onCameraPress}
+                    activeOpacity={0.7}
+                >
+                    <Ionicons name="camera" size={20} color="#666" />
+                </TouchableOpacity>
+
+                {/* input area */}
                 <TextInput
                     style={[styles.textInput, { height: Math.max(60, contentHeight) }]}
                     multiline
@@ -44,6 +56,8 @@ const NoteContentView: React.FC<NoteContentViewProps> = ({
                 />
             </TouchableOpacity>
 
+
+            {/* discard button */}
             <TouchableOpacity
                 style={styles.discardButton}
                 onPress={onDiscard}
@@ -52,9 +66,9 @@ const NoteContentView: React.FC<NoteContentViewProps> = ({
                 <Ionicons name="close-circle" size={24} color="#ff6b6b" />
             </TouchableOpacity>
 
-            <View style={styles.indexBadge}>
+            {/* <View style={styles.indexBadge}>
                 <Text style={styles.indexText}>{index + 1}</Text>
-            </View>
+            </View> */}
         </View>
     );
 };
@@ -89,6 +103,21 @@ const styles = StyleSheet.create({
         lineHeight: 24,
         minHeight: 60,
         paddingTop: 0,
+        paddingRight: 40,
+    },
+    cameraButton: {
+        position: 'absolute',
+        top: 0,
+        right: 0,
+        zIndex: 10,
+        padding: 8,
+        backgroundColor: '#fff',
+        borderRadius: 20,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.2,
+        shadowRadius: 2,
+        elevation: 2,
     },
     discardButton: {
         position: 'absolute',

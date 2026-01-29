@@ -113,6 +113,17 @@ const NoteTakingView: React.FC = () => {
     Alert.alert('Coming Soon', 'Camera feature will be available soon!');
   };
 
+  const handleNoteCameraPress = (index: number) => {
+    console.log(`Camera pressed for note ${index}`);
+    // Set the note as active first
+    setNoteContentViewMetadata({
+      ...noteContentViewMetadata,
+      activeNoteIndex: index,
+    });
+    // TODO: Implement camera functionality for specific note
+    Alert.alert('Coming Soon', `Camera feature for note ${index + 1} will be available soon!`);
+  };
+
   const handleNotePress = (index: number) => {
     setNoteContentViewMetadata({
       ...noteContentViewMetadata,
@@ -197,6 +208,7 @@ const NoteTakingView: React.FC = () => {
             onPress={() => handleNotePress(note.index)}
             onContentChange={(text) => handleContentChange(note.index, text)}
             onDiscard={() => handleDiscard(note.index)}
+            onCameraPress={() => handleNoteCameraPress(note.index)}
           />
         ))}
       </ScrollView>
