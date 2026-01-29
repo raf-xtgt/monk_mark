@@ -11,7 +11,15 @@ interface AppState {
     notesTaken: string[];
     focusTimer: { hours: number; minutes: number; seconds: number } | null;
     focusSessionMetadata: { bookName: string; coverImageUrl: string; isRunning: boolean } | null;
-    noteContentViewMetadata: any;
+    noteContentViewMetadata: {
+        notes: Array<{
+            index: number;
+            guid?: string;
+            content: string;
+            isNew: boolean;
+        }>;
+        activeNoteIndex: number | null;
+    };
     setShowTopBar: (show: boolean) => void;
     setShowBottomNavigation: (show: boolean) => void;
     setUser: (user: UserStateDto | null) => void;
@@ -20,7 +28,15 @@ interface AppState {
     setNotesTaken: (notes: string[]) => void;
     setFocusTimer: (timer: { hours: number; minutes: number; seconds: number } | null) => void;
     setFocusSessionMetadata: (metadata: { bookName: string; coverImageUrl: string; isRunning: boolean } | null) => void;
-    setNoteContentViewMetadata: (metadata: any) => void;
+    setNoteContentViewMetadata: (metadata: {
+        notes: Array<{
+            index: number;
+            guid?: string;
+            content: string;
+            isNew: boolean;
+        }>;
+        activeNoteIndex: number | null;
+    }) => void;
 }
 
 const AppStateContext = createContext<AppState | undefined>(undefined);
@@ -46,7 +62,15 @@ export const AppStateProvider: React.FC<AppStateProviderProps> = ({ children }) 
     const [notesTaken, setNotesTaken] = useState<string[]>([]);
     const [focusTimer, setFocusTimer] = useState<{ hours: number; minutes: number; seconds: number } | null>(null);
     const [focusSessionMetadata, setFocusSessionMetadata] = useState<{ bookName: string; coverImageUrl: string; isRunning: boolean } | null>(null);
-    const [noteContentViewMetadata, setNoteContentViewMetadata] = useState<any>(null);
+    const [noteContentViewMetadata, setNoteContentViewMetadata] = useState<{
+        notes: Array<{
+            index: number;
+            guid?: string;
+            content: string;
+            isNew: boolean;
+        }>;
+        activeNoteIndex: number | null;
+    }>({ notes: [], activeNoteIndex: null });
 
     const value: AppState = {
         showTopBar,
