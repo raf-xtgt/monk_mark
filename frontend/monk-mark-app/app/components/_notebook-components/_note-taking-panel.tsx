@@ -18,6 +18,7 @@ const NoteTakingPanel: React.FC<NoteTakingPanelProps> = ({
 }) => {
     return (
         <View style={styles.container}>
+            {/* add note button */}
             <TouchableOpacity
                 style={styles.button}
                 onPress={onAddNote}
@@ -26,6 +27,7 @@ const NoteTakingPanel: React.FC<NoteTakingPanelProps> = ({
                 <Ionicons name="add" size={24} color="#333333" />
             </TouchableOpacity>
 
+            {/* save note button */}
             <TouchableOpacity
                 style={styles.button}
                 onPress={onSaveNote}
@@ -34,20 +36,22 @@ const NoteTakingPanel: React.FC<NoteTakingPanelProps> = ({
                 <Ionicons name="save" size={24} color="#333333" />
             </TouchableOpacity>
 
-            <TouchableOpacity
-                style={styles.button}
-                onPress={onHighlightNote}
-                activeOpacity={0.7}
-            >
-                <Ionicons name="color-palette" size={24} color="#333333" />
-            </TouchableOpacity>
-
+            {/* capture image */}
             <TouchableOpacity
                 style={styles.button}
                 onPress={onCapturePhoto}
                 activeOpacity={0.7}
             >
                 <Ionicons name="camera" size={24} color="#333333" />
+            </TouchableOpacity>
+            
+            {/* highlight image button */}
+            <TouchableOpacity
+                style={styles.button}
+                onPress={onHighlightNote}
+                activeOpacity={0.7}
+            >
+                <Ionicons name="color-palette" size={24} color="#333333" />
             </TouchableOpacity>
         </View>
     );
