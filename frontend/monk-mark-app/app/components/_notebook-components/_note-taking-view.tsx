@@ -4,6 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import NoteTakingTimer from './_note-taking-timer';
 import NoteTakingPanel from './_note-taking-panel';
 import { useAppState } from '../../_state-controller/state-controller';
+import NoteContentView from './_note-content-view';
 
 const NoteTakingView: React.FC = () => {
   const { focusSession, user } = useAppState();
@@ -19,6 +20,8 @@ const NoteTakingView: React.FC = () => {
     <View style={styles.container}>
       <NoteTakingTimer />
       {/* Note taking content will go here */}
+      <NoteContentView />
+
 
       <NoteTakingPanel />
     </View>
