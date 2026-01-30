@@ -20,6 +20,7 @@ interface AppState {
         }>;
         activeNoteIndex: number | null;
     };
+    currentNotebookGuid: string | null;
     setShowTopBar: (show: boolean) => void;
     setShowBottomNavigation: (show: boolean) => void;
     setUser: (user: UserStateDto | null) => void;
@@ -37,6 +38,7 @@ interface AppState {
         }>;
         activeNoteIndex: number | null;
     }) => void;
+    setCurrentNotebookGuid: (guid: string | null) => void;
 }
 
 const AppStateContext = createContext<AppState | undefined>(undefined);
@@ -71,6 +73,7 @@ export const AppStateProvider: React.FC<AppStateProviderProps> = ({ children }) 
         }>;
         activeNoteIndex: number | null;
     }>({ notes: [], activeNoteIndex: null });
+    const [currentNotebookGuid, setCurrentNotebookGuid] = useState<string | null>(null);
 
     const value: AppState = {
         showTopBar,
@@ -82,6 +85,7 @@ export const AppStateProvider: React.FC<AppStateProviderProps> = ({ children }) 
         focusTimer,
         focusSessionMetadata,
         noteContentViewMetadata,
+        currentNotebookGuid,
         setShowTopBar,
         setShowBottomNavigation,
         setUser,
@@ -91,6 +95,7 @@ export const AppStateProvider: React.FC<AppStateProviderProps> = ({ children }) 
         setFocusTimer,
         setFocusSessionMetadata,
         setNoteContentViewMetadata,
+        setCurrentNotebookGuid,
     };
 
     return (
