@@ -36,11 +36,13 @@ def get_notebook_hdrs_by_user(user_guid: UUID):
     notebooks = AppMmNotebookHdrService.get_notebook_hdrs_by_user(user_guid)
     return ApiResponse.success(notebooks)
 
-@router.get("/get-by-library/{library_hdr_guid}", response_model=ApiResponse[List[AppMmNotebookHdrResponse]])
+@router.get("/get-by-library/{library_hdr_guid}", response_model=ApiResponse[AppMmNotebookHdrResponse])
 def get_notebook_hdrs_by_library(library_hdr_guid: UUID):
-    """Get all notebook headers for a specific library"""
-    notebooks = AppMmNotebookHdrService.get_notebook_hdrs_by_library(library_hdr_guid)
-    return ApiResponse.success(notebooks)
+    """Get first notebook header for a specific library"""
+    notebook = AppMmNotebookHdrService.get_notebook_hdrs_by_library(library_hdr_guid)
+    if not notebook:
+        return ApiResponse.error({"message": "Notebook header not found for this library"})
+    return ApiResponse.success(notebook)
 
 @router.put("/update/{notebook_hdr_id}", response_model=ApiResponse[AppMmNotebookHdrResponse])
 def update_notebook_hdr(notebook_hdr_id: UUID, notebook_hdr: AppMmNotebookHdrUpdate):

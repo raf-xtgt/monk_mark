@@ -49,11 +49,14 @@ class AppMmNotebookHdrService:
         return [AppMmNotebookHdrResponse(**notebook_hdr) for notebook_hdr in response.data]
     
     @staticmethod
-    def get_notebook_hdrs_by_library(library_hdr_guid: UUID) -> List[AppMmNotebookHdrResponse]:
-        """Get all notebook headers for a specific library"""
-        response = supabase.table(AppMmNotebookHdrService.TABLE_NAME).select("*").eq("library_hdr_guid", str(library_hdr_guid)).execute()
+    def get_notebook_hdrs_by_library(library_hdr_guid: UUID) -> Optional[AppMmNotebookHdrResponse]:
+        """Get first notebook header for a specific library"""
+        response = supabase.table(AppMmNotebookHdrService.TABLE_NAME).select("*").eq("library_hdr_guid", str(library_hdr_guid)).limit(1).execute()
         
-        return [AppMmNotebookHdrResponse(**notebook_hdr) for notebook_hdr in response.data]
+        if not response.data:
+            return None
+        
+        return AppMmNotebookHdrResponse(**response.data[0])
     
     @staticmethod
     def update_notebook_hdr(notebook_hdr_id: UUID, notebook_hdr_data: AppMmNotebookHdrUpdate) -> Optional[AppMmNotebookHdrResponse]:
