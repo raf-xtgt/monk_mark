@@ -172,4 +172,47 @@ async def upload_notebook_content_file(
     except Exception as e:
         return ApiResponse.error({"message": f"Failed to upload file: {str(e)}"})
 
-    
+@router.get("/get-attachment-by-content/{content_guid}", response_model=ApiResponse[List[dict]])
+def get_file_attachment_by_content(content_guid: UUID):
+    """Get file attachments with public URLs for a specific notebook content"""
+    try:
+        # Get all file links for this content
+        file_links = NotebookContentFileLinkService.get_by_notebook_content(content_guid)
+        
+        if not file_links:
+            return ApiResponse.success([])
+        
+        # Collect all file_upload_guids
+        file_upload_guids = [link.file_upload_guid for link in file_links if link.file_upload_guid]
+        
+        if not file_upload_guids:
+            return ApiResponse.success([])
+        
+        # Fetch file upload records
+        from util.supabase_config import supabase
+        file_response = supabase.table("app_mm_file_upload").select("guid, storage_path, bucket_name").in_("guid", [str(guid) for guid in file_upload_guids]).execute()
+        
+        if not file_response.data:
+            return ApiResponse.success([])
+        
+        # Build result with public URLs
+        result = []
+        for file_record in file_response.data:
+            try:
+                # Get public URL from Supabase storage
+                public_url = supabase.storage.from_(file_record["bucket_name"]).get_public_url(file_record["storage_path"])
+                
+                result.append({
+                    "content_guid": str(content_guid),
+                    "file_path": public_url
+                })
+            except Exception as e:
+                print(f"Error getting public URL for {file_record['guid']}: {str(e)}")
+                # Skip files that fail to get public URL
+                continue
+        
+        return ApiResponse.success(result)
+        
+    except Exception as e:
+        return ApiResponse.error({"message": f"Failed to get attachments: {str(e)}"})
+
