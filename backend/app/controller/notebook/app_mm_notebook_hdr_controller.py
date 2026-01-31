@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, status
 from uuid import UUID
-from typing import List
+from typing import List, Union
 from model.notebook.app_mm_notebook_hdr import AppMmNotebookHdrCreate, AppMmNotebookHdrUpdate, AppMmNotebookHdrResponse
 from service.notebook.app_mm_notebook_hdr_service import AppMmNotebookHdrService
 from model.api_response import ApiResponse
@@ -36,7 +36,7 @@ def get_notebook_hdrs_by_user(user_guid: UUID):
     notebooks = AppMmNotebookHdrService.get_notebook_hdrs_by_user(user_guid)
     return ApiResponse.success(notebooks)
 
-@router.get("/get-by-library/{library_hdr_guid}", response_model=ApiResponse[AppMmNotebookHdrResponse])
+@router.get("/get-by-library/{library_hdr_guid}", response_model=ApiResponse[Union[AppMmNotebookHdrResponse, dict]])
 def get_notebook_hdrs_by_library(library_hdr_guid: UUID):
     """Get first notebook header for a specific library"""
     notebook = AppMmNotebookHdrService.get_notebook_hdrs_by_library(library_hdr_guid)

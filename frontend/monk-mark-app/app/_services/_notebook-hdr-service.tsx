@@ -130,6 +130,9 @@ export const NotebookHdrService = {
 
             if (result.status === 'OK_RESPONSE') {
                 return result.data;
+            } else if (result.data?.message === 'NOTEBOOK_HDR_BY_LIBRARY_NOT_FOUND') {
+                // Return null when notebook not found
+                return null;
             } else {
                 throw new Error(result.data?.message || 'Failed to get notebook headers by library');
             }

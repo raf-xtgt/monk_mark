@@ -136,13 +136,13 @@ const MonkModeView: React.FC<MonkModeViewProps> = ({ selectedBook }) => {
 
     try {
       // Check if notebook exists for this library
-      const notebooks = await NotebookHdrService.getByLibrary(focusSession.libraryHdrGuid);
+      const notebook = await NotebookHdrService.getByLibrary(focusSession.libraryHdrGuid);
 
       let notebookGuid: string;
 
-      if (notebooks && notebooks.length > 0) {
-        // Store the first notebook's guid
-        notebookGuid = notebooks[0].guid;
+      if (notebook) {
+        // Notebook found, use its guid
+        notebookGuid = notebook.guid;
       } else {
         // No notebook found, create a new one
         const newNotebook = await NotebookHdrService.create({
