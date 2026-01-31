@@ -30,7 +30,7 @@ const NoteTakingView: React.FC = () => {
         if (notebookContents && notebookContents.length > 0) {
           // Transform API response to match noteContentViewMetadata structure
           const loadedNotes = notebookContents.map((content: any, index: number) => ({
-            index: content.sequence_no ?? index,
+            index: index,
             guid: content.guid,
             content: content.content_text || '',
             isNew: false,

@@ -44,7 +44,7 @@ const NoteTakingPanel: React.FC<NoteTakingPanelProps> = ({
             >
                 <Ionicons name="camera" size={24} color="#333333" />
             </TouchableOpacity>
-            
+
             {/* highlight image button */}
             <TouchableOpacity
                 style={styles.button}

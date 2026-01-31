@@ -58,7 +58,7 @@ const NoteContentCamera: React.FC<NoteContentCameraProps> = ({ onClose }) => {
         } else if (state === State.END && panStart) {
             const width = Math.abs(translationX);
             const height = Math.abs(translationY);
-            
+
             if (width > 20 && height > 20) {
                 const newHighlight = {
                     x: Math.min(panStart.x, x),
@@ -73,6 +73,8 @@ const NoteContentCamera: React.FC<NoteContentCameraProps> = ({ onClose }) => {
     };
 
     const handleSave = async () => {
+        console.log("capturedImage", capturedImage)
+        console.log("noteContentViewMetadata", noteContentViewMetadata)
         if (!capturedImage || noteContentViewMetadata.activeNoteIndex === null) return;
 
         try {
@@ -81,7 +83,12 @@ const NoteContentCamera: React.FC<NoteContentCameraProps> = ({ onClose }) => {
 
             const updatedNotes = [...noteContentViewMetadata.notes];
             const activeNote = updatedNotes[noteContentViewMetadata.activeNoteIndex];
-            
+
+            if (!activeNote) {
+                console.error('Active note not found');
+                return;
+            }
+
             if (!activeNote.images) {
                 activeNote.images = [];
             }
@@ -168,10 +175,13 @@ const NoteContentCamera: React.FC<NoteContentCameraProps> = ({ onClose }) => {
                     </PanGestureHandler>
                     <Text style={styles.instructionText}>Swipe on the image to highlight text</Text>
                     <View style={styles.actionButtons}>
+                        {/* discard captured image button */}
                         <TouchableOpacity style={styles.discardButton} onPress={handleDiscard}>
                             <Ionicons name="trash-outline" size={24} color="#fff" />
                             <Text style={styles.buttonText}>Discard</Text>
                         </TouchableOpacity>
+
+                        {/* save captured image button */}
                         <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
                             <Ionicons name="checkmark-circle-outline" size={24} color="#fff" />
                             <Text style={styles.buttonText}>Save</Text>

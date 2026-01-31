@@ -26,12 +26,17 @@ const NoteContentView: React.FC<NoteContentViewProps> = ({
     const [contentHeight, setContentHeight] = React.useState(60);
     const [showCamera, setShowCamera] = useState(false);
     const [showImagePreview, setShowImagePreview] = useState(false);
-    const { noteContentViewMetadata } = useAppState();
+    const { noteContentViewMetadata, setNoteContentViewMetadata } = useAppState();
 
     const currentNote = noteContentViewMetadata.notes[index];
     const imageCount = currentNote?.images?.length || 0;
 
     const handleCameraPress = () => {
+        // Set this note as active before opening camera
+        setNoteContentViewMetadata({
+            ...noteContentViewMetadata,
+            activeNoteIndex: index,
+        });
         setShowCamera(true);
     };
 
