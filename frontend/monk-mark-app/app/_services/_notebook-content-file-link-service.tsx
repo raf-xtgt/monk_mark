@@ -250,4 +250,7 @@ export const NotebookContentFileLinkService = {
             throw error;
         }
     },
+
+    // Add method for the "upload_notebook_content_file" endpoint.
+     
 };
