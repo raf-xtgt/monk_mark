@@ -4,6 +4,7 @@ import FocusTimer from './_focus-timer';
 import { useAppState } from '../../_state-controller/state-controller';
 import { FocusSessionService } from '../../_services/focus-session-service';
 import { LibraryService } from '../../_services/library-service';
+import { NotebookHdrService } from '../../_services/_notebook-hdr-service';
 import { Ionicons } from '@expo/vector-icons';
 
 interface BookResult {
@@ -32,7 +33,8 @@ const MonkModeView: React.FC<MonkModeViewProps> = ({ selectedBook }) => {
     setCurrentRoute,
     focusSessionMetadata,
     setFocusSessionMetadata,
-    user
+    user,
+    setCurrentNotebookGuid
   } = useAppState();
 
   // Get isRunning from global state
@@ -126,6 +128,44 @@ const MonkModeView: React.FC<MonkModeViewProps> = ({ selectedBook }) => {
     }
   };
 
+  const handleNoteTaking = async () => {
+    if (!focusSession?.libraryHdrGuid || !focusSession?.userGuid) {
+      console.error('Missing required focus session data');
+      return;
+    }
+
+    try {
+      // Check if notebook exists for this library
+      const notebooks = await NotebookHdrService.getByLibrary(focusSession.libraryHdrGuid);
+
+      let notebookGuid: string;
+
+      if (notebooks && notebooks.length > 0) {
+        // Store the first notebook's guid
+        notebookGuid = notebooks[0].guid;
+      } else {
+        // No notebook found, create a new one
+        const newNotebook = await NotebookHdrService.create({
+          user_guid: focusSession.userGuid,
+          library_hdr_guid: focusSession.libraryHdrGuid,
+          notebook_name: `${focusSession.bookName} - Notes`,
+          description: `Notes for ${focusSession.bookName}`,
+        });
+        notebookGuid = newNotebook.guid;
+      }
+
+      // Store the notebook guid in state
+      setCurrentNotebookGuid(notebookGuid);
+
+      // Navigate to note taker
+      setCurrentRoute(6);
+    } catch (error) {
+      console.error('Error handling notebook:', error);
+      // Still navigate even if there's an error
+      setCurrentRoute(6);
+    }
+  };
+
   return (
     <View style={styles.container}>
       <FocusTimer isRunning={isRunning} onTimeUpdate={handleTimeUpdate} />
@@ -162,7 +202,7 @@ const MonkModeView: React.FC<MonkModeViewProps> = ({ selectedBook }) => {
               </TouchableOpacity>
 
               {/* note taking button */}
-              <TouchableOpacity style={styles.noteButton} onPress={() => setCurrentRoute(6)}>
+              <TouchableOpacity style={styles.noteButton} onPress={handleNoteTaking}>
                 <Ionicons name="create-outline" size={32} color="white" />
               </TouchableOpacity>
             </>
