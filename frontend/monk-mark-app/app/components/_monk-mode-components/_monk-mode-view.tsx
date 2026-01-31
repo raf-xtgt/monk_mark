@@ -148,7 +148,8 @@ const MonkModeView: React.FC<MonkModeViewProps> = ({ selectedBook }) => {
         const newNotebook = await NotebookHdrService.create({
           user_guid: focusSession.userGuid,
           library_hdr_guid: focusSession.libraryHdrGuid,
-          notebook_name: `${focusSession.bookName} - Notes`,
+          name: `${focusSession.bookName} - Notes`,
+          running_no: "test-running-no",
           description: `Notes for ${focusSession.bookName}`,
         });
         notebookGuid = newNotebook.guid;

@@ -6,7 +6,8 @@ export const NotebookHdrService = {
     async create(payload: {
         user_guid: string;
         library_hdr_guid?: string;
-        notebook_name: string;
+        name: string;
+        running_no?:string;
         description?: string;
     }): Promise<any> {
         try {
