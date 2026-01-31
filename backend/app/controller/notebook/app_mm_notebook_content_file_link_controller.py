@@ -1,13 +1,20 @@
-from fastapi import APIRouter, status
-from uuid import UUID
-from typing import List
+from fastapi import APIRouter, status, UploadFile, File, Form
+from uuid import UUID, uuid4
+from typing import List, Optional
+import os
 from model.notebook.app_mm_notebook_content_file_link import (
     AppMmNotebookContentFileLinkCreate,
     AppMmNotebookContentFileLinkUpdate,
     AppMmNotebookContentFileLinkResponse
 )
+from model.file.app_mm_file_upload import AppMmFileUploadCreate
 from service.notebook.app_mm_notebook_content_file_link_service import NotebookContentFileLinkService
+from service.file.app_mm_file_upload_service import AppMmFileUploadService
+from util.supabase_config import supabase_admin
 from model.api_response import ApiResponse
+from dotenv import load_dotenv
+
+load_dotenv()
 
 router = APIRouter(prefix="/notebook-content-file-links", tags=["notebook-content-file-links"])
 
@@ -73,3 +80,96 @@ def delete_link(link_id: UUID):
     if not success:
         return ApiResponse.error({"message": "Notebook content file link not found"})
     return ApiResponse.success({"message": "Notebook content file link deleted successfully"})
+
+
+@router.post("/upload-file", response_model=ApiResponse[AppMmNotebookContentFileLinkResponse], status_code=status.HTTP_201_CREATED)
+async def upload_notebook_content_file(
+    file: UploadFile = File(...),
+    user_guid: str = Form(...),
+    notebook_hdr_guid: str = Form(...),
+    notebook_content_guid: Optional[str] = Form(None),
+    highlight_metadata: Optional[str] = Form(None)
+):
+    """
+    Upload a file to Supabase storage and create records in app_mm_file_upload 
+    and app_mm_notebook_content_file_link
+    """
+    try:
+        # Get environment variables
+        storage_bucket = os.environ.get("SUPABASE_STORAGE_BUCKET")
+        storage_folder = os.environ.get("SUPABASE_STORAGE_FOLDER_NOTEBOOK_CONTENT")
+        
+        if not storage_bucket or not storage_folder:
+            return ApiResponse.error({"message": "Storage configuration missing"})
+        
+        # Read file content
+        file_content = await file.read()
+        
+        # Determine file extension from content type or filename
+        content_type = file.content_type or "image/jpeg"
+        extension = content_type.split("/")[-1]
+        if extension not in ["jpeg", "jpg", "png", "webp", "gif"]:
+            # Try to get extension from filename
+            if file.filename and "." in file.filename:
+                extension = file.filename.split(".")[-1]
+            else:
+                extension = "jpg"
+        
+        # Generate unique filename
+        filename = f"notebook_content_{uuid4()}.{extension}"
+        storage_path = f"{storage_folder}/{filename}"
+        
+        # Upload to Supabase storage using admin client (bypasses RLS)
+        supabase_admin.storage.from_(storage_bucket).upload(
+            storage_path,
+            file_content,
+            {"content-type": content_type}
+        )
+        
+        # Get public URL for the uploaded file
+        public_url = supabase_admin.storage.from_(storage_bucket).get_public_url(storage_path)
+        
+        # Parse highlight_metadata if provided (expecting JSON string)
+        metadata_dict = None
+        if highlight_metadata:
+            import json
+            try:
+                metadata_dict = json.loads(highlight_metadata)
+            except json.JSONDecodeError:
+                pass
+        
+        # Create file upload record
+        file_create = AppMmFileUploadCreate(
+            user_guid=UUID(user_guid),
+            file_name=filename,
+            mime_type=content_type,
+            storage_path=storage_path,
+            bucket_name=storage_bucket,
+            is_public=True,
+            metadata={
+                "source": "notebook_content",
+                "original_filename": file.filename,
+                "notebook_hdr_guid": notebook_hdr_guid
+            }
+        )
+        
+        file_record = AppMmFileUploadService.create_file_upload(file_create)
+        
+        # Create notebook content file link record
+        link_create = AppMmNotebookContentFileLinkCreate(
+            user_guid=UUID(user_guid),
+            notebook_hdr_guid=UUID(notebook_hdr_guid),
+            notebook_content_guid=UUID(notebook_content_guid) if notebook_content_guid else None,
+            file_upload_guid=file_record.guid,
+            image_url=public_url,
+            highlight_metadata=metadata_dict
+        )
+        
+        link_record = NotebookContentFileLinkService.create(link_create)
+        
+        return ApiResponse.success(link_record)
+        
+    except Exception as e:
+        return ApiResponse.error({"message": f"Failed to upload file: {str(e)}"})
+
+    
