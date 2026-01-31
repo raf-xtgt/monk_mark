@@ -60,17 +60,41 @@ const NoteTakingView: React.FC = () => {
     loadNotes();
   }, [currentNotebookGuid]);
 
-  const handleAddNote = () => {
-    const newNote = {
-      index: noteContentViewMetadata.notes.length,
-      content: '',
-      isNew: true,
-    };
+  const handleAddNote = async () => {
+    if (!focusSession || !user || !currentNotebookGuid) {
+      Alert.alert('Error', 'Session, user, or notebook information is missing.');
+      return;
+    }
 
-    setNoteContentViewMetadata({
-      notes: [...noteContentViewMetadata.notes, newNote],
-      activeNoteIndex: newNote.index,
-    });
+    try {
+      // Create empty note record in database immediately
+      const payload = {
+        notebook_hdr_guid: currentNotebookGuid,
+        user_guid: user.guid,
+        library_hdr_guid: focusSession.libraryHdrGuid,
+        focus_session_guid: focusSession.focusSessionGuid,
+        content_text: '',
+        sequence_no: noteContentViewMetadata.notes.length,
+      };
+
+      const result = await NotebookContentService.create(payload);
+
+      // Add new note with guid from database
+      const newNote = {
+        index: noteContentViewMetadata.notes.length,
+        guid: result.guid,
+        content: '',
+        isNew: false, // Not new anymore since it's already in the database
+      };
+
+      setNoteContentViewMetadata({
+        notes: [...noteContentViewMetadata.notes, newNote],
+        activeNoteIndex: newNote.index,
+      });
+    } catch (error) {
+      console.error('Error creating note:', error);
+      Alert.alert('Error', 'Failed to create note. Please try again.');
+    }
   };
 
   const handleSaveNote = async () => {
@@ -93,53 +117,20 @@ const NoteTakingView: React.FC = () => {
       return;
     }
 
-    if (!focusSession || !user || !currentNotebookGuid) {
-      Alert.alert('Error', 'Session, user, or notebook information is missing.');
+    if (!activeNote.guid) {
+      Alert.alert('Error', 'Note ID is missing.');
       return;
     }
 
     try {
-      if (activeNote.isNew) {
-        // Create new note
-        const payload = {
-          notebook_hdr_guid: currentNotebookGuid,
-          user_guid: user.guid,
-          library_hdr_guid: focusSession.libraryHdrGuid,
-          focus_session_guid: focusSession.focusSessionGuid,
-          content_text: activeNote.content,
-          sequence_no: activeNote.index,
-        };
+      // Update existing note
+      const payload = {
+        content_text: activeNote.content,
+        sequence_no: activeNote.index,
+      };
 
-        const result = await NotebookContentService.create(payload);
-
-        // Update note with guid and mark as saved
-        const updatedNotes = noteContentViewMetadata.notes.map((note) =>
-          note.index === activeNote.index
-            ? { ...note, guid: result.guid, isNew: false }
-            : note
-        );
-
-        setNoteContentViewMetadata({
-          ...noteContentViewMetadata,
-          notes: updatedNotes,
-        });
-
-        Alert.alert('Success', 'Note saved successfully!');
-      } else {
-        // Update existing note
-        if (!activeNote.guid) {
-          Alert.alert('Error', 'Note ID is missing.');
-          return;
-        }
-
-        const payload = {
-          content_text: activeNote.content,
-          sequence_no: activeNote.index,
-        };
-
-        await NotebookContentService.update(activeNote.guid, payload);
-        Alert.alert('Success', 'Note updated successfully!');
-      }
+      await NotebookContentService.update(activeNote.guid, payload);
+      Alert.alert('Success', 'Note updated successfully!');
     } catch (error) {
       console.error('Error saving note:', error);
       Alert.alert('Error', 'Failed to save note. Please try again.');
