@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { View, StyleSheet, ScrollView, Alert } from 'react-native';
 import NoteTakingTimer from './_note-taking-timer';
 import NoteTakingPanel from './_note-taking-panel';
@@ -13,7 +13,52 @@ const NoteTakingView: React.FC = () => {
     user,
     noteContentViewMetadata,
     setNoteContentViewMetadata,
+    currentNotebookGuid,
   } = useAppState();
+
+  // Load existing notes when component mounts or currentNotebookGuid changes
+  useEffect(() => {
+    const loadNotes = async () => {
+      if (!currentNotebookGuid) {
+        console.log('No notebook guid available');
+        return;
+      }
+
+      try {
+        const notebookContents = await NotebookContentService.getByNotebookHdr(currentNotebookGuid);
+        
+        if (notebookContents && notebookContents.length > 0) {
+          // Transform API response to match noteContentViewMetadata structure
+          const loadedNotes = notebookContents.map((content: any, index: number) => ({
+            index: content.sequence_no ?? index,
+            guid: content.guid,
+            content: content.content_text || '',
+            isNew: false,
+          }));
+
+          setNoteContentViewMetadata({
+            notes: loadedNotes,
+            activeNoteIndex: null,
+          });
+        } else {
+          // No existing notes, start with empty state
+          setNoteContentViewMetadata({
+            notes: [],
+            activeNoteIndex: null,
+          });
+        }
+      } catch (error) {
+        console.error('Error loading notes:', error);
+        // Start with empty state on error
+        setNoteContentViewMetadata({
+          notes: [],
+          activeNoteIndex: null,
+        });
+      }
+    };
+
+    loadNotes();
+  }, [currentNotebookGuid]);
 
   const handleAddNote = () => {
     const newNote = {
@@ -48,18 +93,16 @@ const NoteTakingView: React.FC = () => {
       return;
     }
 
-    if (!focusSession || !user) {
-      Alert.alert('Error', 'Session or user information is missing.');
+    if (!focusSession || !user || !currentNotebookGuid) {
+      Alert.alert('Error', 'Session, user, or notebook information is missing.');
       return;
     }
 
     try {
       if (activeNote.isNew) {
         // Create new note
-        // Note: notebook_hdr_guid should be provided by the focus session or created separately
-        // For now, we'll use a placeholder or the library_hdr_guid as reference
         const payload = {
-          notebook_hdr_guid: focusSession.libraryHdrGuid, // Using library as notebook reference
+          notebook_hdr_guid: currentNotebookGuid,
           user_guid: user.guid,
           library_hdr_guid: focusSession.libraryHdrGuid,
           focus_session_guid: focusSession.focusSessionGuid,
