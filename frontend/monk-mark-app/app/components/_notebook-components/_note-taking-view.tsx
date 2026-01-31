@@ -6,6 +6,7 @@ import NotebookBackground from './_notebook-background';
 import NoteContentView from './_note-content-view';
 import { useAppState } from '../../_state-controller/state-controller';
 import { NotebookContentService } from '../../_services/_notebook-content-service';
+import { NotebookContentFileLinkService } from '../../_services/_notebook-content-file-link-service';
 
 const NoteTakingView: React.FC = () => {
   const {
@@ -29,12 +30,38 @@ const NoteTakingView: React.FC = () => {
         
         if (notebookContents && notebookContents.length > 0) {
           // Transform API response to match noteContentViewMetadata structure
-          const loadedNotes = notebookContents.map((content: any, index: number) => ({
-            index: index,
-            guid: content.guid,
-            content: content.content_text || '',
-            isNew: false,
-          }));
+          const loadedNotesPromises = notebookContents.map(async (content: any, index: number) => {
+            let images = undefined;
+
+            // Fetch attachments for this notebook content
+            if (content.guid) {
+              try {
+                const attachments = await NotebookContentFileLinkService.getNotebookContentAttachments(content.guid);
+                
+                if (attachments && attachments.length > 0) {
+                  // Map attachments to the images format expected by noteContentViewMetadata
+                  images = attachments.map((attachment: any) => ({
+                    uri: attachment.file_path,
+                    highlights: attachment.highlight_metadata?.highlights || [],
+                    asyncStorageKey: `attachment_${attachment.content_guid}_${Date.now()}`,
+                  }));
+                }
+              } catch (error) {
+                console.error(`Error loading attachments for content ${content.guid}:`, error);
+                // Continue without attachments if fetch fails
+              }
+            }
+
+            return {
+              index: index,
+              guid: content.guid,
+              content: content.content_text || '',
+              isNew: false,
+              images: images,
+            };
+          });
+
+          const loadedNotes = await Promise.all(loadedNotesPromises);
 
           setNoteContentViewMetadata({
             notes: loadedNotes,
