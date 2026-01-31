@@ -17,6 +17,11 @@ interface AppState {
             guid?: string;
             content: string;
             isNew: boolean;
+            images?: Array<{
+                uri: string;
+                highlights: Array<{ x: number; y: number; width: number; height: number }>;
+                asyncStorageKey: string;
+            }>;
         }>;
         activeNoteIndex: number | null;
     };
@@ -35,6 +40,11 @@ interface AppState {
             guid?: string;
             content: string;
             isNew: boolean;
+            images?: Array<{
+                uri: string;
+                highlights: Array<{ x: number; y: number; width: number; height: number }>;
+                asyncStorageKey: string;
+            }>;
         }>;
         activeNoteIndex: number | null;
     }) => void;
@@ -70,6 +80,11 @@ export const AppStateProvider: React.FC<AppStateProviderProps> = ({ children }) 
             guid?: string;
             content: string;
             isNew: boolean;
+            images?: Array<{
+                uri: string;
+                highlights: Array<{ x: number; y: number; width: number; height: number }>;
+                asyncStorageKey: string;
+            }>;
         }>;
         activeNoteIndex: number | null;
     }>({ notes: [], activeNoteIndex: null });

@@ -1,7 +1,9 @@
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, TextInput } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, Modal } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { Image } from 'expo-image';
 import { useAppState } from '../../_state-controller/state-controller';
+import NoteContentCamera from './_note-content-camera';
 
 interface NoteContentViewProps {
     index: number;
@@ -20,56 +22,131 @@ const NoteContentView: React.FC<NoteContentViewProps> = ({
     onPress,
     onContentChange,
     onDiscard,
-    onCameraPress,
 }) => {
     const [contentHeight, setContentHeight] = React.useState(60);
+    const [showCamera, setShowCamera] = useState(false);
+    const [showImagePreview, setShowImagePreview] = useState(false);
+    const { noteContentViewMetadata } = useAppState();
+
+    const currentNote = noteContentViewMetadata.notes[index];
+    const imageCount = currentNote?.images?.length || 0;
+
+    const handleCameraPress = () => {
+        setShowCamera(true);
+    };
+
+    const handleCloseCamera = () => {
+        setShowCamera(false);
+    };
+
+    const handleAttachmentPress = () => {
+        if (imageCount > 0) {
+            setShowImagePreview(true);
+        }
+    };
 
     return (
-        <View style={[styles.container, isActive && styles.activeContainer]}>
-            <TouchableOpacity
-                style={styles.touchableArea}
-                onPress={onPress}
-                activeOpacity={1}
-            >
-                {/* Camera button */}
+        <>
+            <View style={[styles.container, isActive && styles.activeContainer]}>
                 <TouchableOpacity
-                    style={styles.cameraButton}
-                    onPress={onCameraPress}
-                    activeOpacity={0.7}
+                    style={styles.touchableArea}
+                    onPress={onPress}
+                    activeOpacity={1}
                 >
-                    <Ionicons name="camera" size={20} color="#666" />
+                    {/* Camera button */}
+                    <TouchableOpacity
+                        style={styles.cameraButton}
+                        onPress={handleCameraPress}
+                        activeOpacity={0.7}
+                    >
+                        <Ionicons name="camera" size={20} color="#666" />
+                    </TouchableOpacity>
+
+                    {/* input area */}
+                    <TextInput
+                        style={[styles.textInput, { height: Math.max(60, contentHeight) }]}
+                        multiline
+                        placeholder="Start typing your note..."
+                        placeholderTextColor="#999"
+                        value={content}
+                        onChangeText={onContentChange}
+                        onFocus={onPress}
+                        textAlignVertical="top"
+                        onContentSizeChange={(event) => {
+                            setContentHeight(event.nativeEvent.contentSize.height);
+                        }}
+                    />
                 </TouchableOpacity>
 
-                {/* input area */}
-                <TextInput
-                    style={[styles.textInput, { height: Math.max(60, contentHeight) }]}
-                    multiline
-                    placeholder="Start typing your note..."
-                    placeholderTextColor="#999"
-                    value={content}
-                    onChangeText={onContentChange}
-                    onFocus={onPress}
-                    textAlignVertical="top"
-                    onContentSizeChange={(event) => {
-                        setContentHeight(event.nativeEvent.contentSize.height);
-                    }}
-                />
-            </TouchableOpacity>
+                {/* Attachment button with count */}
+                {imageCount > 0 && (
+                    <TouchableOpacity
+                        style={styles.attachmentButton}
+                        onPress={handleAttachmentPress}
+                        activeOpacity={0.7}
+                    >
+                        <Ionicons name="attach" size={20} color="#666" />
+                        <View style={styles.countBadge}>
+                            <Text style={styles.countText}>{imageCount}</Text>
+                        </View>
+                    </TouchableOpacity>
+                )}
 
+                {/* discard button */}
+                <TouchableOpacity
+                    style={styles.discardButton}
+                    onPress={onDiscard}
+                    activeOpacity={0.7}
+                >
+                    <Ionicons name="close-circle" size={24} color="#ff6b6b" />
+                </TouchableOpacity>
+            </View>
 
-            {/* discard button */}
-            <TouchableOpacity
-                style={styles.discardButton}
-                onPress={onDiscard}
-                activeOpacity={0.7}
+            {/* Camera Modal */}
+            <Modal
+                visible={showCamera}
+                animationType="slide"
+                presentationStyle="fullScreen"
             >
-                <Ionicons name="close-circle" size={24} color="#ff6b6b" />
-            </TouchableOpacity>
+                <NoteContentCamera onClose={handleCloseCamera} />
+            </Modal>
 
-            {/* <View style={styles.indexBadge}>
-                <Text style={styles.indexText}>{index + 1}</Text>
-            </View> */}
-        </View>
+            {/* Image Preview Modal */}
+            <Modal
+                visible={showImagePreview}
+                animationType="fade"
+                transparent
+                onRequestClose={() => setShowImagePreview(false)}
+            >
+                <View style={styles.previewModalContainer}>
+                    <TouchableOpacity
+                        style={styles.previewCloseButton}
+                        onPress={() => setShowImagePreview(false)}
+                    >
+                        <Ionicons name="close" size={32} color="#fff" />
+                    </TouchableOpacity>
+                    {currentNote?.images?.map((image, idx) => (
+                        <View key={idx} style={styles.previewImageContainer}>
+                            <Image source={{ uri: image.uri }} style={styles.previewImage} contentFit="contain" />
+                            {image.highlights.map((highlight, hIdx) => (
+                                <View
+                                    key={hIdx}
+                                    style={[
+                                        styles.previewHighlight,
+                                        {
+                                            left: highlight.x,
+                                            top: highlight.y,
+                                            width: highlight.width,
+                                            height: highlight.height,
+                                        },
+                                    ]}
+                                />
+                            ))}
+                        </View>
+                    ))}
+                </View>
+            </Modal>
+        </>
     );
 };
 
@@ -119,31 +196,72 @@ const styles = StyleSheet.create({
         shadowRadius: 2,
         elevation: 2,
     },
-    discardButton: {
+    attachmentButton: {
         position: 'absolute',
         bottom: 8,
-        right: 8,
-    },
-    indexBadge: {
-        position: 'absolute',
-        top: 8,
-        right: 8,
-        backgroundColor: '#fff',
-        borderRadius: 12,
-        width: 24,
-        height: 24,
-        justifyContent: 'center',
+        left: 8,
+        flexDirection: 'row',
         alignItems: 'center',
+        backgroundColor: '#fff',
+        borderRadius: 16,
+        padding: 6,
+        paddingRight: 10,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 1 },
         shadowOpacity: 0.2,
         shadowRadius: 2,
         elevation: 2,
     },
-    indexText: {
+    countBadge: {
+        backgroundColor: '#4FC3F7',
+        borderRadius: 10,
+        minWidth: 20,
+        height: 20,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginLeft: 4,
+        paddingHorizontal: 6,
+    },
+    countText: {
+        color: '#fff',
         fontSize: 12,
         fontWeight: 'bold',
-        color: '#333',
+    },
+    discardButton: {
+        position: 'absolute',
+        bottom: 8,
+        right: 8,
+    },
+    previewModalContainer: {
+        flex: 1,
+        backgroundColor: 'rgba(0,0,0,0.9)',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    previewCloseButton: {
+        position: 'absolute',
+        top: 40,
+        right: 20,
+        zIndex: 10,
+        backgroundColor: 'rgba(0,0,0,0.5)',
+        borderRadius: 20,
+        padding: 8,
+    },
+    previewImageContainer: {
+        width: '90%',
+        height: '70%',
+        position: 'relative',
+        marginBottom: 20,
+    },
+    previewImage: {
+        width: '100%',
+        height: '100%',
+    },
+    previewHighlight: {
+        position: 'absolute',
+        backgroundColor: 'rgba(173, 255, 47, 0.3)',
+        borderWidth: 2,
+        borderColor: 'rgba(173, 255, 47, 0.8)',
     },
 });
 
