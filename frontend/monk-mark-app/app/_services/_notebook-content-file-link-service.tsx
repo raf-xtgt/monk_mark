@@ -263,11 +263,11 @@ export const NotebookContentFileLinkService = {
             formData.append('file', payload.file);
             formData.append('user_guid', payload.user_guid);
             formData.append('notebook_hdr_guid', payload.notebook_hdr_guid);
-            
+
             if (payload.notebook_content_guid) {
                 formData.append('notebook_content_guid', payload.notebook_content_guid);
             }
-            
+
             if (payload.highlight_metadata) {
                 formData.append('highlight_metadata', JSON.stringify(payload.highlight_metadata));
             }

@@ -5,7 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { GestureHandlerRootView, PanGestureHandler, State } from 'react-native-gesture-handler';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAppState } from '../../_state-controller/state-controller';
-import { NotebookContentFileLinkService } from '../../_services/_notebook-content-file-link-service';
+import { API_BASE_URL } from '../../_constants/api-constants';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -107,16 +107,42 @@ const NoteContentCamera: React.FC<NoteContentCameraProps> = ({ onClose }) => {
             // Upload file to backend
             if (user?.guid && currentNotebookGuid) {
                 try {
-                    const response = await fetch(capturedImage);
-                    const blob = await response.blob();
-                    const file = new File([blob], `note_${Date.now()}.jpg`, { type: 'image/jpeg' });
+                    // Create FormData with React Native compatible file object
+                    const formData = new FormData();
 
-                    await NotebookContentFileLinkService.uploadFile({
-                        file,
-                        user_guid: user.guid,
-                        notebook_hdr_guid: currentNotebookGuid,
-                        highlight_metadata: { highlights },
+                    // In React Native, we need to append the file with specific format
+                    formData.append('file', {
+                        uri: capturedImage,
+                        type: 'image/jpeg',
+                        name: `note_${Date.now()}.jpg`,
+                    } as any);
+
+                    formData.append('user_guid', user.guid);
+                    formData.append('notebook_hdr_guid', currentNotebookGuid);
+
+                    // Add notebook_content_guid if the active note has a guid
+                    if (activeNote.guid) {
+                        formData.append('notebook_content_guid', activeNote.guid);
+                    }
+
+                    if (highlights.length > 0) {
+                        formData.append('highlight_metadata', JSON.stringify({ highlights }));
+                    }
+
+                    const response = await fetch(`${API_BASE_URL}/notebook-content-file-links/upload-file`, {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'Content-Type': 'multipart/form-data',
+                        },
                     });
+
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+
+                    const result = await response.json();
+                    console.log('Upload successful:', result);
                 } catch (error) {
                     console.error('Error uploading file:', error);
                 }
