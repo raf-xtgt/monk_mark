@@ -77,7 +77,8 @@ const FocusTimer: React.FC<FocusTimerProps> = ({ isRunning, onTimeUpdate }) => {
     if (onTimeUpdate) {
       onTimeUpdate(hours, minutes, seconds);
     }
-  }, [hours, minutes, seconds, onTimeUpdate, setFocusTimer]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hours, minutes, seconds]);
 
   const incrementHours = () => {
     if (hours < MAX_HOURS) {
