@@ -251,6 +251,47 @@ export const NotebookContentFileLinkService = {
         }
     },
 
-    // Add method for the "upload_notebook_content_file" endpoint.
-     
+    async uploadFile(payload: {
+        file: File;
+        user_guid: string;
+        notebook_hdr_guid: string;
+        notebook_content_guid?: string;
+        highlight_metadata?: Record<string, any>;
+    }): Promise<any> {
+        try {
+            const formData = new FormData();
+            formData.append('file', payload.file);
+            formData.append('user_guid', payload.user_guid);
+            formData.append('notebook_hdr_guid', payload.notebook_hdr_guid);
+            
+            if (payload.notebook_content_guid) {
+                formData.append('notebook_content_guid', payload.notebook_content_guid);
+            }
+            
+            if (payload.highlight_metadata) {
+                formData.append('highlight_metadata', JSON.stringify(payload.highlight_metadata));
+            }
+
+            const response = await fetch(`${API_BASE_URL}/notebook-content-file-links/upload-file`, {
+                method: 'POST',
+                body: formData,
+                // Note: Don't set Content-Type header - browser will set it with boundary for multipart/form-data
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const result = await response.json();
+
+            if (result.status === 'OK_RESPONSE') {
+                return result.data;
+            } else {
+                throw new Error(result.data?.message || 'Failed to upload file');
+            }
+        } catch (error) {
+            console.error('Error uploading file:', error);
+            throw error;
+        }
+    },
 };
