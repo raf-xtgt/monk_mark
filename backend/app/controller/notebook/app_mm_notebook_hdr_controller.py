@@ -41,7 +41,7 @@ def get_notebook_hdrs_by_library(library_hdr_guid: UUID):
     """Get first notebook header for a specific library"""
     notebook = AppMmNotebookHdrService.get_notebook_hdrs_by_library(library_hdr_guid)
     if not notebook:
-        return ApiResponse.error({"message": "Notebook header not found for this library"})
+        return ApiResponse.error({"message": "NOTEBOOK_HDR_BY_LIBRARY_NOT_FOUND"})
     return ApiResponse.success(notebook)
 
 @router.put("/update/{notebook_hdr_id}", response_model=ApiResponse[AppMmNotebookHdrResponse])
