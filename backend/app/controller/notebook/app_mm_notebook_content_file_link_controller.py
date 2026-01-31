@@ -174,13 +174,16 @@ async def upload_notebook_content_file(
 
 @router.get("/get-attachment-by-content/{content_guid}", response_model=ApiResponse[List[dict]])
 def get_file_attachment_by_content(content_guid: UUID):
-    """Get file attachments with public URLs for a specific notebook content"""
+    """Get file attachments with public URLs and highlight metadata for a specific notebook content"""
     try:
         # Get all file links for this content
         file_links = NotebookContentFileLinkService.get_by_notebook_content(content_guid)
         
         if not file_links:
             return ApiResponse.success([])
+        
+        # Create a mapping of file_upload_guid to file_link for quick lookup
+        file_link_map = {str(link.file_upload_guid): link for link in file_links if link.file_upload_guid}
         
         # Collect all file_upload_guids
         file_upload_guids = [link.file_upload_guid for link in file_links if link.file_upload_guid]
@@ -195,16 +198,20 @@ def get_file_attachment_by_content(content_guid: UUID):
         if not file_response.data:
             return ApiResponse.success([])
         
-        # Build result with public URLs
+        # Build result with public URLs and highlight metadata
         result = []
         for file_record in file_response.data:
             try:
                 # Get public URL from Supabase storage
                 public_url = supabase.storage.from_(file_record["bucket_name"]).get_public_url(file_record["storage_path"])
                 
+                # Get the corresponding file_link to retrieve highlight_metadata
+                file_link = file_link_map.get(file_record["guid"])
+                
                 result.append({
                     "content_guid": str(content_guid),
-                    "file_path": public_url
+                    "file_path": public_url,
+                    "highlight_metadata": file_link.highlight_metadata if file_link else None
                 })
             except Exception as e:
                 print(f"Error getting public URL for {file_record['guid']}: {str(e)}")
