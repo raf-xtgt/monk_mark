@@ -330,72 +330,71 @@ const NoteContentCamera: React.FC<NoteContentCameraProps> = ({ onClose }) => {
                     </View>
                 </>
             ) : (
-                <ScrollView style={styles.previewContainer}>
-                    <PanGestureHandler onHandlerStateChange={handlePanGesture} onGestureEvent={handlePanGesture}>
-                        <View 
-                            style={styles.imageContainer}
-                            ref={imageContainerRef}
-                            onLayout={handleImageLayout}
-                        >
-                            <Image source={{ uri: capturedImage }} style={styles.previewImage} resizeMode="cover" />
-                            {highlights.map((highlight, index) => (
-                                <View key={index}>
-                                    <View
-                                        style={[
-                                            styles.highlight,
-                                            {
-                                                left: highlight.x,
-                                                top: highlight.y,
-                                                width: highlight.width,
-                                                height: highlight.height,
-                                            },
-                                            selectedHighlightIndex === index && styles.selectedHighlight,
-                                        ]}
-                                    />
-                                    {/* Resize handles - only show for selected highlight */}
-                                    {selectedHighlightIndex === index && (
-                                        <>
-                                            {/* Top-left handle */}
-                                            <View style={[styles.resizeHandle, {
-                                                left: highlight.x - 5,
-                                                top: highlight.y - 5,
-                                            }]} />
-                                            {/* Top-right handle */}
-                                            <View style={[styles.resizeHandle, {
-                                                left: highlight.x + highlight.width - 5,
-                                                top: highlight.y - 5,
-                                            }]} />
-                                            {/* Bottom-left handle */}
-                                            <View style={[styles.resizeHandle, {
-                                                left: highlight.x - 5,
-                                                top: highlight.y + highlight.height - 5,
-                                            }]} />
-                                            {/* Bottom-right handle */}
-                                            <View style={[styles.resizeHandle, {
-                                                left: highlight.x + highlight.width - 5,
-                                                top: highlight.y + highlight.height - 5,
-                                            }]} />
-                                        </>
-                                    )}
-                                </View>
-                            ))}
-                        </View>
-                    </PanGestureHandler>
+
+            <View style={styles.previewContainer}>
+                <PanGestureHandler 
+                    onHandlerStateChange={handlePanGesture} 
+                    onGestureEvent={handlePanGesture}
+                >
+                    {/* This View must be the container for BOTH the image and highlights. 
+                    Everything inside here is positioned relative to this box. 
+                    */}
+                    <View 
+                        style={styles.imageContainer}
+                        ref={imageContainerRef}
+                        onLayout={handleImageLayout}
+                    >
+                        <Image 
+                            source={{ uri: capturedImage }} 
+                            style={styles.previewImage} 
+                            resizeMode="cover" 
+                        />
+                        
+                        {/* Map highlights here - they will now overlay correctly */}
+                        {highlights.map((highlight, index) => (
+                            <View key={index} style={{ position: 'absolute', zIndex: 100 }}>
+                                <View
+                                    style={[
+                                        styles.highlight,
+                                        {
+                                            left: highlight.x,
+                                            top: highlight.y,
+                                            width: highlight.width,
+                                            height: highlight.height,
+                                        },
+                                        selectedHighlightIndex === index && styles.selectedHighlight,
+                                    ]}
+                                />
+                                {/* Resize handles */}
+                                {selectedHighlightIndex === index && (
+                                    <>
+                                        <View style={[styles.resizeHandle, { left: highlight.x - 5, top: highlight.y - 5 }]} />
+                                        <View style={[styles.resizeHandle, { left: highlight.x + highlight.width - 5, top: highlight.y - 5 }]} />
+                                        <View style={[styles.resizeHandle, { left: highlight.x - 5, top: highlight.y + highlight.height - 5 }]} />
+                                        <View style={[styles.resizeHandle, { left: highlight.x + highlight.width - 5, top: highlight.y + highlight.height - 5 }]} />
+                                    </>
+                                )}
+                            </View>
+                        ))}
+                    </View>
+                </PanGestureHandler>
+
+                {/* Footer content remains outside the PanGestureHandler */}
+                <View>
                     <Text style={styles.instructionText}>Swipe on the image to highlight text</Text>
                     <View style={styles.actionButtons}>
-                        {/* discard captured image button */}
                         <TouchableOpacity style={styles.discardButton} onPress={handleDiscard}>
                             <Ionicons name="trash-outline" size={24} color="#fff" />
                             <Text style={styles.buttonText}>Discard</Text>
                         </TouchableOpacity>
 
-                        {/* save captured image button */}
                         <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
                             <Ionicons name="checkmark-circle-outline" size={24} color="#fff" />
                             <Text style={styles.buttonText}>Save</Text>
                         </TouchableOpacity>
                     </View>
-                </ScrollView>
+                </View>
+            </View>
             )}
         </GestureHandlerRootView>
     );
