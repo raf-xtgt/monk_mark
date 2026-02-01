@@ -32,7 +32,7 @@ interface AppState {
     setCurrentRoute: (route: number) => void;
     setFocusSession: (focusSession: FocusSessionDto | null) => void;
     setNotesTaken: (notes: string[]) => void;
-    setFocusTimer: (timer: { hours: number; minutes: number; seconds: number } | null) => void;
+    setFocusTimer: (timer: { hours: number; minutes: number; seconds: number } | null | ((prev: { hours: number; minutes: number; seconds: number } | null) => { hours: number; minutes: number; seconds: number } | null)) => void;
     setFocusSessionMetadata: (metadata: { bookName: string; coverImageUrl: string; isRunning: boolean } | null) => void;
     setNoteContentViewMetadata: (metadata: {
         notes: Array<{

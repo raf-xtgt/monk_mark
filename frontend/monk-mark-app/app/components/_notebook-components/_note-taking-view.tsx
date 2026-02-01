@@ -27,7 +27,7 @@ const NoteTakingView: React.FC = () => {
 
       try {
         const notebookContents = await NotebookContentService.getByNotebookHdr(currentNotebookGuid);
-        
+
         if (notebookContents && notebookContents.length > 0) {
           // Transform API response to match noteContentViewMetadata structure
           const loadedNotesPromises = notebookContents.map(async (content: any, index: number) => {
@@ -37,7 +37,7 @@ const NoteTakingView: React.FC = () => {
             if (content.guid) {
               try {
                 const attachments = await NotebookContentFileLinkService.getNotebookContentAttachments(content.guid);
-                
+
                 if (attachments && attachments.length > 0) {
                   // Map attachments to the images format expected by noteContentViewMetadata
                   images = attachments.map((attachment: any) => ({
@@ -271,6 +271,15 @@ const NoteTakingView: React.FC = () => {
 
       <NoteTakingTimer />
 
+      <View style={styles.topRightPanel}>
+        <NoteTakingPanel
+          onAddNote={handleAddNote}
+          onSaveNote={handleSaveNote}
+          onHighlightNote={handleHighlightNote}
+          onCapturePhoto={handleCapturePhoto}
+        />
+      </View>
+
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
@@ -288,13 +297,6 @@ const NoteTakingView: React.FC = () => {
           />
         ))}
       </ScrollView>
-
-      <NoteTakingPanel
-        onAddNote={handleAddNote}
-        onSaveNote={handleSaveNote}
-        onHighlightNote={handleHighlightNote}
-        onCapturePhoto={handleCapturePhoto}
-      />
     </View>
   );
 };
@@ -302,6 +304,12 @@ const NoteTakingView: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  topRightPanel: {
+    position: 'absolute',
+    top: 12,
+    right: 8,
+    zIndex: 10,
   },
   scrollView: {
     flex: 1,

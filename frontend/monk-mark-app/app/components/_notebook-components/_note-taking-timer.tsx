@@ -27,7 +27,7 @@ const NoteTakingTimer: React.FC = () => {
 
     if (isRunning && focusTimer) {
       intervalRef.current = setInterval(() => {
-        setFocusTimer((prevTimer) => {
+        setFocusTimer((prevTimer: { hours: number; minutes: number; seconds: number } | null) => {
           if (!prevTimer) return null;
 
           let { hours, minutes, seconds } = prevTimer;
@@ -76,20 +76,22 @@ const NoteTakingTimer: React.FC = () => {
 
       {/* Timer Display and Title */}
       <View style={styles.centerContainer}>
-        <Text style={styles.timerText}>
-          {focusTimer
-            ? `${formatTime(focusTimer.hours)}:${formatTime(focusTimer.minutes)}:${formatTime(focusTimer.seconds)}`
-            : '00:00:00'}
-        </Text>
+        <View style={styles.timerRow}>
+          <Text style={styles.timerText}>
+            {focusTimer
+              ? `${formatTime(focusTimer.hours)}:${formatTime(focusTimer.minutes)}:${formatTime(focusTimer.seconds)}`
+              : '00:00:00'}
+          </Text>
+          {/* Active Session Indicator - next to timer */}
+          <View style={styles.activeIndicator} />
+        </View>
         <View style={styles.titleContainer}>
           <Text style={styles.titleText}>{getTruncatedTitle()}</Text>
         </View>
       </View>
 
-      {/* Active Session Indicator */}
-      <View style={styles.indicatorContainer}>
-        <View style={styles.activeIndicator} />
-      </View>
+      {/* Empty space for balance */}
+      <View style={styles.rightSpacer} />
     </View>
   );
 };
@@ -114,12 +116,17 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
   },
+  timerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 8,
+  },
   timerText: {
     fontSize: 20,
     fontWeight: 'bold',
     color: '#333',
     letterSpacing: 1,
-    marginBottom: 8,
   },
   titleContainer: {
     backgroundColor: '#e8e8e8',
@@ -132,15 +139,13 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     color: '#333',
   },
-  indicatorContainer: {
-    padding: 8,
-    justifyContent: 'center',
-    alignItems: 'center',
+  rightSpacer: {
+    width: 40,
   },
   activeIndicator: {
-    width: 12,
-    height: 12,
-    borderRadius: 6,
+    width: 10,
+    height: 10,
+    borderRadius: 5,
     backgroundColor: '#ff3b30',
   },
 });

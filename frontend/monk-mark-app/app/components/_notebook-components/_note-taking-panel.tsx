@@ -24,7 +24,7 @@ const NoteTakingPanel: React.FC<NoteTakingPanelProps> = ({
                 onPress={onAddNote}
                 activeOpacity={0.7}
             >
-                <Ionicons name="add" size={24} color="#333333" />
+                <Ionicons name="add" size={18} color="#333333" />
             </TouchableOpacity>
 
             {/* save note button */}
@@ -33,7 +33,7 @@ const NoteTakingPanel: React.FC<NoteTakingPanelProps> = ({
                 onPress={onSaveNote}
                 activeOpacity={0.7}
             >
-                <Ionicons name="save" size={24} color="#333333" />
+                <Ionicons name="save" size={16} color="#333333" />
             </TouchableOpacity>
         </View>
     );
@@ -41,32 +41,30 @@ const NoteTakingPanel: React.FC<NoteTakingPanelProps> = ({
 
 const styles = StyleSheet.create({
     container: {
-        position: 'absolute',
-        bottom: 20,
-        right: 20,
+        flexDirection: 'row',
         backgroundColor: '#4FC3F7',
-        borderRadius: 30,
-        paddingVertical: 12,
+        borderRadius: 18,
+        paddingVertical: 6,
         paddingHorizontal: 8,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.3,
-        shadowRadius: 8,
-        elevation: 8,
-        gap: 8,
-    },
-    button: {
-        width: 48,
-        height: 48,
-        borderRadius: 24,
-        backgroundColor: '#E0E0E0',
-        justifyContent: 'center',
-        alignItems: 'center',
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.2,
         shadowRadius: 4,
-        elevation: 4,
+        elevation: 6,
+        gap: 8,
+    },
+    button: {
+        width: 32,
+        height: 32,
+        borderRadius: 16,
+        backgroundColor: '#E0E0E0',
+        justifyContent: 'center',
+        alignItems: 'center',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.15,
+        shadowRadius: 2,
+        elevation: 3,
     },
 });
 
