@@ -35,24 +35,6 @@ const NoteTakingPanel: React.FC<NoteTakingPanelProps> = ({
             >
                 <Ionicons name="save" size={24} color="#333333" />
             </TouchableOpacity>
-
-            {/* capture image button */}
-            <TouchableOpacity
-                style={styles.button}
-                onPress={onCapturePhoto}
-                activeOpacity={0.7}
-            >
-                <Ionicons name="camera" size={24} color="#333333" />
-            </TouchableOpacity>
-
-            {/* highlight image button */}
-            <TouchableOpacity
-                style={styles.button}
-                onPress={onHighlightNote}
-                activeOpacity={0.7}
-            >
-                <Ionicons name="color-palette" size={24} color="#333333" />
-            </TouchableOpacity>
         </View>
     );
 };
