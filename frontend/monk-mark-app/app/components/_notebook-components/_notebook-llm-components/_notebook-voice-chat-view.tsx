@@ -1,16 +1,14 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
 
-const NoteTakingCamera: React.FC<any> = () => {
-
-
+const NotebookVoiceChatView: React.FC<any> = () => {
   return (
     <View>
-        <Text>Note taking camera</Text>
+        <Text>Notebook Voice Chat View</Text>
     </View>
   );
 };
 
 
 
-export default NoteTakingCamera;
+export default NotebookVoiceChatView;
