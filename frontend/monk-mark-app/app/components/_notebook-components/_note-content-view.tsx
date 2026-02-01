@@ -53,20 +53,20 @@ const NoteContentView: React.FC<NoteContentViewProps> = ({
     return (
         <>
             <View style={[styles.container, isActive && styles.activeContainer]}>
+                {/* discard button - top right */}
+                <TouchableOpacity
+                    style={styles.discardButton}
+                    onPress={onDiscard}
+                    activeOpacity={0.7}
+                >
+                    <Ionicons name="close-circle" size={24} color="#ff6b6b" />
+                </TouchableOpacity>
+
                 <TouchableOpacity
                     style={styles.touchableArea}
                     onPress={onPress}
                     activeOpacity={1}
                 >
-                    {/* Camera button */}
-                    <TouchableOpacity
-                        style={styles.cameraButton}
-                        onPress={handleCameraPress}
-                        activeOpacity={0.7}
-                    >
-                        <Ionicons name="camera" size={20} color="#666" />
-                    </TouchableOpacity>
-
                     {/* input area */}
                     <TextInput
                         style={[styles.textInput, { height: Math.max(60, contentHeight) }]}
@@ -83,28 +83,31 @@ const NoteContentView: React.FC<NoteContentViewProps> = ({
                     />
                 </TouchableOpacity>
 
-                {/* Attachment button with count */}
-                {imageCount > 0 && (
+                {/* Bottom buttons container */}
+                <View style={styles.bottomButtonsContainer}>
+                    {/* Camera button */}
                     <TouchableOpacity
-                        style={styles.attachmentButton}
-                        onPress={handleAttachmentPress}
+                        style={styles.cameraButton}
+                        onPress={handleCameraPress}
                         activeOpacity={0.7}
                     >
-                        <Ionicons name="attach" size={20} color="#666" />
-                        <View style={styles.countBadge}>
-                            <Text style={styles.countText}>{imageCount}</Text>
-                        </View>
+                        <Ionicons name="camera" size={20} color="#666" />
                     </TouchableOpacity>
-                )}
 
-                {/* discard button */}
-                <TouchableOpacity
-                    style={styles.discardButton}
-                    onPress={onDiscard}
-                    activeOpacity={0.7}
-                >
-                    <Ionicons name="close-circle" size={24} color="#ff6b6b" />
-                </TouchableOpacity>
+                    {/* Attachment button with count */}
+                    {imageCount > 0 && (
+                        <TouchableOpacity
+                            style={styles.attachmentButton}
+                            onPress={handleAttachmentPress}
+                            activeOpacity={0.7}
+                        >
+                            <Ionicons name="attach" size={20} color="#666" />
+                            <View style={styles.countBadge}>
+                                <Text style={styles.countText}>{imageCount}</Text>
+                            </View>
+                        </TouchableOpacity>
+                    )}
+                </View>
             </View>
 
             {/* Camera Modal */}
@@ -185,16 +188,20 @@ const styles = StyleSheet.create({
         lineHeight: 24,
         minHeight: 60,
         paddingTop: 0,
-        paddingRight: 40,
+        paddingBottom: 50,
+    },
+    bottomButtonsContainer: {
+        position: 'absolute',
+        bottom: 8,
+        left: 8,
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 8,
     },
     cameraButton: {
-        position: 'absolute',
-        top: 0,
-        right: 0,
-        zIndex: 10,
-        padding: 8,
         backgroundColor: '#fff',
         borderRadius: 20,
+        padding: 8,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 1 },
         shadowOpacity: 0.2,
@@ -202,9 +209,6 @@ const styles = StyleSheet.create({
         elevation: 2,
     },
     attachmentButton: {
-        position: 'absolute',
-        bottom: 8,
-        left: 8,
         flexDirection: 'row',
         alignItems: 'center',
         backgroundColor: '#fff',
@@ -234,7 +238,7 @@ const styles = StyleSheet.create({
     },
     discardButton: {
         position: 'absolute',
-        bottom: 8,
+        top: 8,
         right: 8,
     },
     previewModalContainer: {
