@@ -25,10 +25,14 @@ const NoteContentCamera: React.FC<NoteContentCameraProps> = ({ onClose }) => {
     const imageContainerRef = useRef<View>(null);
     const { noteContentViewMetadata, setNoteContentViewMetadata, user, currentNotebookGuid } = useAppState();
     const [dragStartPos, setDragStartPos] = useState({ x: 0, y: 0 });
+    const [originalHighlightPos, setOriginalHighlightPos] = useState<{ x: number; y: number; width: number; height: number } | null>(null);
 
     // Fixed size for tap highlights (relative to screen width)
     const TAP_HIGHLIGHT_WIDTH = SCREEN_WIDTH * 0.15;
     const TAP_HIGHLIGHT_HEIGHT = SCREEN_WIDTH * 0.1;
+
+    // Drag sensitivity: lower values = slower/stiffer movement (0.5 = half speed)
+    const DRAG_SENSITIVITY = 0.5;
 
     if (!permission) {
         return <View style={styles.container}><Text>Requesting camera permission...</Text></View>;
@@ -63,18 +67,19 @@ const NoteContentCamera: React.FC<NoteContentCameraProps> = ({ onClose }) => {
 
         if (state === State.BEGAN) {
             setPanStart({ x, y });
-            
+
             // Check if user tapped on an existing highlight
             let foundHighlight = false;
             for (let i = highlights.length - 1; i >= 0; i--) {
                 const h = highlights[i];
                 const RESIZE_HANDLE_SIZE = 30;
-                
+
                 // Check if tap is on bottom-right resize handle
                 if (x >= h.x + h.width - RESIZE_HANDLE_SIZE && x <= h.x + h.width &&
                     y >= h.y + h.height - RESIZE_HANDLE_SIZE && y <= h.y + h.height) {
                     setSelectedHighlightIndex(i);
                     setResizeMode('resize-br');
+                    setOriginalHighlightPos({ x: h.x, y: h.y, width: h.width, height: h.height });
                     foundHighlight = true;
                     break;
                 }
@@ -83,6 +88,7 @@ const NoteContentCamera: React.FC<NoteContentCameraProps> = ({ onClose }) => {
                     y >= h.y && y <= h.y + RESIZE_HANDLE_SIZE) {
                     setSelectedHighlightIndex(i);
                     setResizeMode('resize-tr');
+                    setOriginalHighlightPos({ x: h.x, y: h.y, width: h.width, height: h.height });
                     foundHighlight = true;
                     break;
                 }
@@ -91,6 +97,7 @@ const NoteContentCamera: React.FC<NoteContentCameraProps> = ({ onClose }) => {
                     y >= h.y + h.height - RESIZE_HANDLE_SIZE && y <= h.y + h.height) {
                     setSelectedHighlightIndex(i);
                     setResizeMode('resize-bl');
+                    setOriginalHighlightPos({ x: h.x, y: h.y, width: h.width, height: h.height });
                     foundHighlight = true;
                     break;
                 }
@@ -99,6 +106,7 @@ const NoteContentCamera: React.FC<NoteContentCameraProps> = ({ onClose }) => {
                     y >= h.y && y <= h.y + RESIZE_HANDLE_SIZE) {
                     setSelectedHighlightIndex(i);
                     setResizeMode('resize-tl');
+                    setOriginalHighlightPos({ x: h.x, y: h.y, width: h.width, height: h.height });
                     foundHighlight = true;
                     break;
                 }
@@ -106,80 +114,70 @@ const NoteContentCamera: React.FC<NoteContentCameraProps> = ({ onClose }) => {
                 if (x >= h.x && x <= h.x + h.width && y >= h.y && y <= h.y + h.height) {
                     setSelectedHighlightIndex(i);
                     setResizeMode('move');
-                    foundHighlight = true;
-                    break;
-                }
-                if (x >= h.x && x <= h.x + h.width && y >= h.y && y <= h.y + h.height) {
-                    setSelectedHighlightIndex(i);
-                    setResizeMode('move');
-                    // STORE THE STARTING POSITION OF THE BOX
-                    setDragStartPos({ x: h.x, y: h.y });
+                    // Store the original position of the highlight box
+                    setOriginalHighlightPos({ x: h.x, y: h.y, width: h.width, height: h.height });
                     foundHighlight = true;
                     break;
                 }
             }
-            
+
             if (!foundHighlight) {
                 setSelectedHighlightIndex(null);
                 setResizeMode('none');
+                setOriginalHighlightPos(null);
             }
-        } else if (state === State.ACTIVE && panStart) {
+        } else if (state === State.ACTIVE && panStart && originalHighlightPos) {
             if (selectedHighlightIndex !== null && resizeMode === 'move') {
                 const updatedHighlights = [...highlights];
-                
-                // Logic: New Position = Original Position + Total Translation
-                // This prevents the "sliding/slipping" bug
+
+                // Apply drag sensitivity to make movement slower/stiffer
+                const adjustedTranslationX = translationX * DRAG_SENSITIVITY;
+                const adjustedTranslationY = translationY * DRAG_SENSITIVITY;
+
+                // New Position = Original Position + Adjusted Translation
                 updatedHighlights[selectedHighlightIndex] = {
                     ...updatedHighlights[selectedHighlightIndex],
-                    x: dragStartPos.x + translationX,
-                    y: dragStartPos.y + translationY,
+                    x: originalHighlightPos.x + adjustedTranslationX,
+                    y: originalHighlightPos.y + adjustedTranslationY,
                 };
-                
+
                 setHighlights(updatedHighlights);
-            }
-            if (selectedHighlightIndex !== null && resizeMode !== 'none') {
-                // Update existing highlight
+            } else if (selectedHighlightIndex !== null && resizeMode !== 'none' && resizeMode !== 'move') {
+                // Handle resize modes with sensitivity
                 const updatedHighlights = [...highlights];
                 const h = updatedHighlights[selectedHighlightIndex];
-                const currentX = panStart.x + translationX;
-                const currentY = panStart.y + translationY;
-                
-                if (resizeMode === 'move') {
-                    // Move the highlight by translation amount
-                    const originalH = highlights[selectedHighlightIndex];
-                    h.x = originalH.x + translationX;
-                    h.y = originalH.y + translationY;
-                } else if (resizeMode === 'resize-br') {
+
+                const adjustedTranslationX = translationX * DRAG_SENSITIVITY;
+                const adjustedTranslationY = translationY * DRAG_SENSITIVITY;
+
+                if (resizeMode === 'resize-br') {
                     // Resize from bottom-right
-                    h.width = Math.max(30, currentX - h.x);
-                    h.height = Math.max(30, currentY - h.y);
+                    h.width = Math.max(30, originalHighlightPos.width + adjustedTranslationX);
+                    h.height = Math.max(30, originalHighlightPos.height + adjustedTranslationY);
                 } else if (resizeMode === 'resize-tr') {
                     // Resize from top-right
-                    const originalH = highlights[selectedHighlightIndex];
-                    const newY = originalH.y + translationY;
-                    const newHeight = originalH.y + originalH.height - newY;
+                    const newY = originalHighlightPos.y + adjustedTranslationY;
+                    const newHeight = originalHighlightPos.y + originalHighlightPos.height - newY;
                     if (newHeight > 30) {
                         h.y = newY;
                         h.height = newHeight;
                     }
-                    h.width = Math.max(30, currentX - h.x);
+                    h.width = Math.max(30, originalHighlightPos.width + adjustedTranslationX);
                 } else if (resizeMode === 'resize-bl') {
                     // Resize from bottom-left
-                    const originalH = highlights[selectedHighlightIndex];
-                    const newX = originalH.x + translationX;
-                    const newWidth = originalH.x + originalH.width - newX;
+                    const newX = originalHighlightPos.x + adjustedTranslationX;
+                    const newWidth = originalHighlightPos.x + originalHighlightPos.width - newX;
                     if (newWidth > 30) {
                         h.x = newX;
                         h.width = newWidth;
                     }
-                    h.height = Math.max(30, currentY - h.y);
+                    h.height = Math.max(30, originalHighlightPos.height + adjustedTranslationY);
                 } else if (resizeMode === 'resize-tl') {
                     // Resize from top-left
-                    const originalH = highlights[selectedHighlightIndex];
-                    const newX = originalH.x + translationX;
-                    const newY = originalH.y + translationY;
-                    const newWidth = originalH.x + originalH.width - newX;
-                    const newHeight = originalH.y + originalH.height - newY;
+                    const newX = originalHighlightPos.x + adjustedTranslationX;
+                    const newY = originalHighlightPos.y + adjustedTranslationY;
+                    const newWidth = originalHighlightPos.x + originalHighlightPos.width - newX;
+                    const newHeight = originalHighlightPos.y + originalHighlightPos.height - newY;
                     if (newWidth > 30) {
                         h.x = newX;
                         h.width = newWidth;
@@ -189,7 +187,7 @@ const NoteContentCamera: React.FC<NoteContentCameraProps> = ({ onClose }) => {
                         h.height = newHeight;
                     }
                 }
-                
+
                 setHighlights(updatedHighlights);
             }
         } else if (state === State.END && panStart) {
@@ -199,9 +197,9 @@ const NoteContentCamera: React.FC<NoteContentCameraProps> = ({ onClose }) => {
                 const deltaY = Math.abs(translationY);
                 const endX = panStart.x + translationX;
                 const endY = panStart.y + translationY;
-                
+
                 console.log('Creating highlight:', { panStart, endX, endY, deltaX, deltaY });
-                
+
                 // Check if it's a tap (minimal movement)
                 if (deltaX < 10 && deltaY < 10) {
                     // Create fixed-size highlight at tap location
@@ -217,7 +215,7 @@ const NoteContentCamera: React.FC<NoteContentCameraProps> = ({ onClose }) => {
                     // Create highlight from swipe (horizontal or vertical)
                     const width = Math.abs(translationX);
                     const height = Math.abs(translationY);
-                    
+
                     // Accept both horizontal and vertical swipes
                     if (width > 20 || height > 20) {
                         const newHighlight = {
@@ -231,10 +229,12 @@ const NoteContentCamera: React.FC<NoteContentCameraProps> = ({ onClose }) => {
                     }
                 }
             }
-            
+
+            // Reset all gesture states
             setPanStart(null);
             setSelectedHighlightIndex(null);
             setResizeMode('none');
+            setOriginalHighlightPos(null);
         }
     };
 
@@ -352,70 +352,70 @@ const NoteContentCamera: React.FC<NoteContentCameraProps> = ({ onClose }) => {
                 </>
             ) : (
 
-            <View style={styles.previewContainer}>
-                <PanGestureHandler 
-                    onHandlerStateChange={handlePanGesture} 
-                    onGestureEvent={handlePanGesture}
-                >
-                    {/* This View must be the container for BOTH the image and highlights. 
+                <View style={styles.previewContainer}>
+                    <PanGestureHandler
+                        onHandlerStateChange={handlePanGesture}
+                        onGestureEvent={handlePanGesture}
+                    >
+                        {/* This View must be the container for BOTH the image and highlights. 
                     Everything inside here is positioned relative to this box. 
                     */}
-                    <View 
-                        style={styles.imageContainer}
-                        ref={imageContainerRef}
-                        onLayout={handleImageLayout}
-                    >
-                        <Image 
-                            source={{ uri: capturedImage }} 
-                            style={styles.previewImage} 
-                            resizeMode="cover" 
-                        />
-                        
-                        {/* Map highlights here - they will now overlay correctly */}
-                        {highlights.map((highlight, index) => (
-                            <View key={index} style={{ position: 'absolute', zIndex: 100 }}>
-                                <View
-                                    style={[
-                                        styles.highlight,
-                                        {
-                                            left: highlight.x,
-                                            top: highlight.y,
-                                            width: highlight.width,
-                                            height: highlight.height,
-                                        },
-                                        selectedHighlightIndex === index && styles.selectedHighlight,
-                                    ]}
-                                />
-                                {/* Resize handles */}
-                                {selectedHighlightIndex === index && (
-                                    <>
-                                        <View style={[styles.resizeHandle, { left: highlight.x - 5, top: highlight.y - 5 }]} />
-                                        <View style={[styles.resizeHandle, { left: highlight.x + highlight.width - 5, top: highlight.y - 5 }]} />
-                                        <View style={[styles.resizeHandle, { left: highlight.x - 5, top: highlight.y + highlight.height - 5 }]} />
-                                        <View style={[styles.resizeHandle, { left: highlight.x + highlight.width - 5, top: highlight.y + highlight.height - 5 }]} />
-                                    </>
-                                )}
-                            </View>
-                        ))}
-                    </View>
-                </PanGestureHandler>
+                        <View
+                            style={styles.imageContainer}
+                            ref={imageContainerRef}
+                            onLayout={handleImageLayout}
+                        >
+                            <Image
+                                source={{ uri: capturedImage }}
+                                style={styles.previewImage}
+                                resizeMode="cover"
+                            />
 
-                {/* Footer content remains outside the PanGestureHandler */}
-                <View>
-                    <Text style={styles.instructionText}>Swipe on the image to highlight text</Text>
-                    <View style={styles.actionButtons}>
-                        <TouchableOpacity style={styles.discardButton} onPress={handleDiscard}>
-                            <Ionicons name="trash-outline" size={24} color="#fff" />
-                            <Text style={styles.buttonText}>Discard</Text>
-                        </TouchableOpacity>
+                            {/* Map highlights here - they will now overlay correctly */}
+                            {highlights.map((highlight, index) => (
+                                <View key={index} style={{ position: 'absolute', zIndex: 100 }}>
+                                    <View
+                                        style={[
+                                            styles.highlight,
+                                            {
+                                                left: highlight.x,
+                                                top: highlight.y,
+                                                width: highlight.width,
+                                                height: highlight.height,
+                                            },
+                                            selectedHighlightIndex === index && styles.selectedHighlight,
+                                        ]}
+                                    />
+                                    {/* Resize handles */}
+                                    {selectedHighlightIndex === index && (
+                                        <>
+                                            <View style={[styles.resizeHandle, { left: highlight.x - 5, top: highlight.y - 5 }]} />
+                                            <View style={[styles.resizeHandle, { left: highlight.x + highlight.width - 5, top: highlight.y - 5 }]} />
+                                            <View style={[styles.resizeHandle, { left: highlight.x - 5, top: highlight.y + highlight.height - 5 }]} />
+                                            <View style={[styles.resizeHandle, { left: highlight.x + highlight.width - 5, top: highlight.y + highlight.height - 5 }]} />
+                                        </>
+                                    )}
+                                </View>
+                            ))}
+                        </View>
+                    </PanGestureHandler>
 
-                        <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
-                            <Ionicons name="checkmark-circle-outline" size={24} color="#fff" />
-                            <Text style={styles.buttonText}>Save</Text>
-                        </TouchableOpacity>
+                    {/* Footer content remains outside the PanGestureHandler */}
+                    <View>
+                        <Text style={styles.instructionText}>Swipe on the image to highlight text</Text>
+                        <View style={styles.actionButtons}>
+                            <TouchableOpacity style={styles.discardButton} onPress={handleDiscard}>
+                                <Ionicons name="trash-outline" size={24} color="#fff" />
+                                <Text style={styles.buttonText}>Discard</Text>
+                            </TouchableOpacity>
+
+                            <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
+                                <Ionicons name="checkmark-circle-outline" size={24} color="#fff" />
+                                <Text style={styles.buttonText}>Save</Text>
+                            </TouchableOpacity>
+                        </View>
                     </View>
                 </View>
-            </View>
             )}
         </GestureHandlerRootView>
     );
