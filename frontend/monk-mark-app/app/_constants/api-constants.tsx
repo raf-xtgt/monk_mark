@@ -6,7 +6,7 @@ import { Platform } from 'react-native';
 // - Physical device: replace with your machine's IP address (e.g., 192.168.1.x)
 const getApiBaseUrl = () => {
   if (Platform.OS === 'android') {
-    return 'https://654006d134d1.ngrok-free.app/api/mm';
+    return 'https://368507341253.ngrok-free.app/api/mm';
   }
   // iOS simulator or web
   return 'http://localhost:8000/api/ppl';

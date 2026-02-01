@@ -2,7 +2,7 @@ import React, { useState, useRef } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image, ScrollView, Dimensions } from 'react-native';
 import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
 import { Ionicons } from '@expo/vector-icons';
-import { GestureHandlerRootView, PanGestureHandler, State } from 'react-native-gesture-handler';
+import { GestureHandlerRootView, GestureDetector, Gesture } from 'react-native-gesture-handler';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAppState } from '../../_state-controller/state-controller';
 import { API_BASE_URL } from '../../_constants/api-constants';
@@ -50,27 +50,27 @@ const NoteContentCamera: React.FC<NoteContentCameraProps> = ({ onClose }) => {
         }
     };
 
-    const handlePanGesture = (event: any) => {
-        const { state, x, y, translationX, translationY } = event.nativeEvent;
+    const panGesture = Gesture.Pan()
+        .onBegin((event) => {
+            setPanStart({ x: event.x, y: event.y });
+        })
+        .onEnd((event) => {
+            if (panStart) {
+                const width = Math.abs(event.translationX);
+                const height = Math.abs(event.translationY);
 
-        if (state === State.BEGAN) {
-            setPanStart({ x, y });
-        } else if (state === State.END && panStart) {
-            const width = Math.abs(translationX);
-            const height = Math.abs(translationY);
-
-            if (width > 20 && height > 20) {
-                const newHighlight = {
-                    x: Math.min(panStart.x, x),
-                    y: Math.min(panStart.y, y),
-                    width,
-                    height,
-                };
-                setHighlights([...highlights, newHighlight]);
+                if (width > 20 && height > 20) {
+                    const newHighlight = {
+                        x: Math.min(panStart.x, event.x),
+                        y: Math.min(panStart.y, event.y),
+                        width,
+                        height,
+                    };
+                    setHighlights([...highlights, newHighlight]);
+                }
+                setPanStart(null);
             }
-            setPanStart(null);
-        }
-    };
+        });
 
     const handleSave = async () => {
         console.log("capturedImage", capturedImage)
@@ -180,7 +180,7 @@ const NoteContentCamera: React.FC<NoteContentCameraProps> = ({ onClose }) => {
                 </>
             ) : (
                 <ScrollView style={styles.previewContainer}>
-                    <PanGestureHandler onHandlerStateChange={handlePanGesture} onGestureEvent={handlePanGesture}>
+                    <GestureDetector gesture={panGesture}>
                         <View style={styles.imageContainer}>
                             <Image source={{ uri: capturedImage }} style={styles.previewImage} resizeMode="contain" />
                             {highlights.map((highlight, index) => (
@@ -198,7 +198,7 @@ const NoteContentCamera: React.FC<NoteContentCameraProps> = ({ onClose }) => {
                                 />
                             ))}
                         </View>
-                    </PanGestureHandler>
+                    </GestureDetector>
                     <Text style={styles.instructionText}>Swipe on the image to highlight text</Text>
                     <View style={styles.actionButtons}>
                         {/* discard captured image button */}
