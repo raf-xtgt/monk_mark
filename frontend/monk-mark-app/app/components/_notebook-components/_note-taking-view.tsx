@@ -212,8 +212,23 @@ const NoteTakingView: React.FC = () => {
         {
           text: 'Discard',
           style: 'destructive',
-          onPress: () => {
-            // Remove the note
+          onPress: async () => {
+            const noteToDiscard = noteContentViewMetadata.notes.find(
+              (note) => note.index === index
+            );
+
+            // Delete from database if note has a guid
+            if (noteToDiscard?.guid) {
+              try {
+                await NotebookContentService.deleteByGuid(noteToDiscard.guid);
+              } catch (error) {
+                console.error('Error deleting note from database:', error);
+                Alert.alert('Error', 'Failed to delete note. Please try again.');
+                return;
+              }
+            }
+
+            // Remove the note from state
             const filteredNotes = noteContentViewMetadata.notes.filter(
               (note) => note.index !== index
             );
