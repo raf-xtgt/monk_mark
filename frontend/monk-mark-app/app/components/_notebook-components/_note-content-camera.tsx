@@ -24,6 +24,7 @@ const NoteContentCamera: React.FC<NoteContentCameraProps> = ({ onClose }) => {
     const cameraRef = useRef<CameraView>(null);
     const imageContainerRef = useRef<View>(null);
     const { noteContentViewMetadata, setNoteContentViewMetadata, user, currentNotebookGuid } = useAppState();
+    const [dragStartPos, setDragStartPos] = useState({ x: 0, y: 0 });
 
     // Fixed size for tap highlights (relative to screen width)
     const TAP_HIGHLIGHT_WIDTH = SCREEN_WIDTH * 0.15;
@@ -57,7 +58,6 @@ const NoteContentCamera: React.FC<NoteContentCameraProps> = ({ onClose }) => {
             }
         }
     };
-
     const handlePanGesture = (event: any) => {
         const { state, x, y, translationX, translationY } = event.nativeEvent;
 
@@ -109,6 +109,14 @@ const NoteContentCamera: React.FC<NoteContentCameraProps> = ({ onClose }) => {
                     foundHighlight = true;
                     break;
                 }
+                if (x >= h.x && x <= h.x + h.width && y >= h.y && y <= h.y + h.height) {
+                    setSelectedHighlightIndex(i);
+                    setResizeMode('move');
+                    // STORE THE STARTING POSITION OF THE BOX
+                    setDragStartPos({ x: h.x, y: h.y });
+                    foundHighlight = true;
+                    break;
+                }
             }
             
             if (!foundHighlight) {
@@ -116,6 +124,19 @@ const NoteContentCamera: React.FC<NoteContentCameraProps> = ({ onClose }) => {
                 setResizeMode('none');
             }
         } else if (state === State.ACTIVE && panStart) {
+            if (selectedHighlightIndex !== null && resizeMode === 'move') {
+                const updatedHighlights = [...highlights];
+                
+                // Logic: New Position = Original Position + Total Translation
+                // This prevents the "sliding/slipping" bug
+                updatedHighlights[selectedHighlightIndex] = {
+                    ...updatedHighlights[selectedHighlightIndex],
+                    x: dragStartPos.x + translationX,
+                    y: dragStartPos.y + translationY,
+                };
+                
+                setHighlights(updatedHighlights);
+            }
             if (selectedHighlightIndex !== null && resizeMode !== 'none') {
                 // Update existing highlight
                 const updatedHighlights = [...highlights];
