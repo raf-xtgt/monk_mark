@@ -7,6 +7,7 @@ from controller.notebook.app_mm_notebook_hdr_controller import router as noteboo
 from controller.notebook.app_mm_notebook_content_controller import router as notebook_content_router
 from controller.notebook.app_mm_notebook_content_file_link_controller import router as notebook_content_file_link_router
 from controller.notebook.app_mm_notebook_llm_chat_hdr_controller import router as notebook_llm_chat_hdr_router
+from controller.notebook.app_mm_notebook_llm_chat_transcript_controller import router as notebook_llm_chat_transcript_router
 from controller.file.app_mm_file_upload_controller import router as file_upload_router
 from controller.focus_session.app_mm_focus_session_controller import router as focus_session_router
 
@@ -34,6 +35,7 @@ app.include_router(notebook_router, prefix=url_prefix)
 app.include_router(notebook_content_router, prefix=url_prefix)
 app.include_router(notebook_content_file_link_router, prefix=url_prefix)
 app.include_router(notebook_llm_chat_hdr_router, prefix=url_prefix)
+app.include_router(notebook_llm_chat_transcript_router, prefix=url_prefix)
 app.include_router(file_upload_router, prefix=url_prefix)
 app.include_router(focus_session_router, prefix=url_prefix)
 
