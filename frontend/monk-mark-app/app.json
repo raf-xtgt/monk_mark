@@ -57,7 +57,8 @@
         {
           "microphonePermission": "Allow Monk Mark to access your microphone"
         }
-      ]
+      ],
+      "@cjblack/expo-audio-stream"
     ],
     "experiments": {
       "typedRoutes": true,
