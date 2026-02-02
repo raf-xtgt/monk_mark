@@ -86,19 +86,43 @@ class BookSearchService:
     def _search_google_books(book_name: str) -> Optional[Dict[str, Any]]:
         """Search Google Books API for book information"""
         try:
-            api_key = os.environ.get("GOOGLE_BOOKS_API_KEY")
-            params = {"q": book_name, "maxResults": 1, "key": api_key}
+            api_key = os.environ.get("MM_GOOGLE_BOOKS_API_KEY")
+            
+            # Log API key status (without exposing the actual key)
+            if not api_key:
+                print(f"[BookSearch] WARNING: GOOGLE_BOOKS_API_KEY not configured")
+            else:
+                print(f"[BookSearch] API key configured (length: {len(api_key)})")
+            
+            params = {"q": book_name, "maxResults": 1}
+            if api_key:
+                params["key"] = api_key
+            
+            print(f"[BookSearch] Sending request to Google Books API for: '{book_name}'")
+            print(f"[BookSearch] Request URL: {BookSearchService.GOOGLE_BOOKS_API_URL}")
+            
             response = requests.get(
                 BookSearchService.GOOGLE_BOOKS_API_URL, 
                 params=params, 
                 timeout=10
             )
+            
+            print(f"[BookSearch] Response status: {response.status_code}")
+            
+            # Handle rate limiting specifically
+            if response.status_code == 429:
+                print(f"[BookSearch] ERROR: Rate limit exceeded. Consider:")
+                return None
+            
             response.raise_for_status()
             
             data = response.json()
             
             if not data.get("items"):
+                print(f"[BookSearch] No results found for: '{book_name}'")
                 return None
+            
+            print(f"[BookSearch] Found {len(data.get('items', []))} result(s)")
             
             book_info = data["items"][0]["volumeInfo"]
             
@@ -110,10 +134,13 @@ class BookSearchService:
                     book_info["imageLinks"].get("medium") or
                     book_info["imageLinks"].get("thumbnail")
                 )
+                print(f"[BookSearch] Cover image found: {cover_url is not None}")
             
             # Extract authors
             authors = book_info.get("authors", [])
             author_str = ", ".join(authors) if authors else None
+            
+            print(f"[BookSearch] Successfully retrieved: '{book_info.get('title')}' by {author_str}")
             
             return {
                 "title": book_info.get("title"),
@@ -122,8 +149,11 @@ class BookSearchService:
                 "cover_url": cover_url
             }
         
+        except requests.exceptions.RequestException as e:
+            print(f"[BookSearch] Request error: {str(e)}")
+            return None
         except Exception as e:
-            print(f"Error searching Google Books: {str(e)}")
+            print(f"[BookSearch] Unexpected error: {str(e)}")
             return None
     
     @staticmethod
